@@ -5,6 +5,7 @@ import {makeEditEventTemplate} from './js/components/edit-event.js';
 import {makeTripInfoTemplate} from './js/components/trip-info.js';
 import {makeTripContentTemplate} from './js/components/trip-content.js';
 import {makeSortListTemplate} from './js/components/sort-list.js';
+import {makeDayContentTemplate} from './js/components/main-content.js';
 
 const EVENTS_COUNT = 3;
 
@@ -25,11 +26,13 @@ const renderMockComponents = () => {
   renderComponent(eventsContainer, makeTripContentTemplate(), `beforeend`);
 
   const tripEventsContent = document.querySelector(`.trip-days`);
+  renderComponent(tripEventsContent, makeDayContentTemplate(), `beforeend`);
 
-  renderComponent(tripEventsContent, makeEditEventTemplate(), `beforeend`);
+  const tripEventsList = tripEventsContent.querySelector(`.trip-events__list`);
+  renderComponent(tripEventsList, makeEditEventTemplate(), `beforeend`);
 
   for (let i = 1; i <= EVENTS_COUNT; i++) {
-    renderComponent(tripEventsContent, makeEventItemTemplate(), `beforeend`);
+    renderComponent(tripEventsList, makeEventItemTemplate(), `beforeend`);
   }
 };
 
