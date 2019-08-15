@@ -1,22 +1,24 @@
-export const makeEventItemTemplate = () => (
+import {makeFirstSymUp} from '../utils.js';
+
+export const makeEventItemTemplate = ({type: {value, placeholder}, city, eventTime: {from, to, activityTime}, cost}) => (
   `<li class="trip-events__item">
     <div class="event">
       <div class="event__type">
-        <img class="event__type-icon" width="42" height="42" src="img/icons/drive.png" alt="Event type icon">
+        <img class="event__type-icon" width="42" height="42" src="img/icons/${value}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">Drive to Geneva</h3>
+      <h3 class="event__title">${makeFirstSymUp(value)} ${placeholder} ${city}</h3>
 
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="2019-03-19T10:00">10:00</time>
+          <time class="event__start-time" datetime="${from.date}T${from.time}">${from.time}</time>
           &mdash;
-          <time class="event__end-time" datetime="2019-03-19T11:00">11:00</time>
+          <time class="event__end-time" datetime="${to.date}T${to.time}">${to.time}</time>
         </p>
-        <p class="event__duration">1H</p>
+        <p class="event__duration">${activityTime}</p>
       </div>
 
       <p class="event__price">
-        &euro;&nbsp;<span class="event__price-value">20</span>
+        &euro;&nbsp;<span class="event__price-value">${cost}</span>
       </p>
 
       <button class="event__rollup-btn" type="button">
