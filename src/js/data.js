@@ -4,6 +4,16 @@ import {sortEventsByDate} from './utils.js';
 
 const EVENTS_COUNT = 4;
 const RANDOM_STR = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus`;
+const MOCK_DATA_COUNT = {
+  DESCRIPTION: {
+    MIN: 1,
+    MAX: 3
+  },
+  OFFERS: {
+    MIN: 0,
+    MAX: 2
+  }
+};
 
 // структура данних однієї точки
 const getEventData = () => ({
@@ -13,7 +23,7 @@ const getEventData = () => ({
 
   images: new Array(6).fill(``).map(() => `${`http://picsum.photos/300/150?r=${Math.random()}`}`),
 
-  description: getRandomArray(RANDOM_STR.split(`. `), 1, 3).join(`. `),
+  description: getRandomArray(RANDOM_STR.split(`. `), MOCK_DATA_COUNT.DESCRIPTION.MIN, MOCK_DATA_COUNT.DESCRIPTION.MAX).join(`. `),
 
   eventTime: {
     from: {
@@ -54,7 +64,7 @@ const getEventData = () => ({
       price: 9,
       isChecked: Boolean(Math.round(Math.random()))
     },
-  ], 0, 2),
+  ], MOCK_DATA_COUNT.OFFERS.MIN, MOCK_DATA_COUNT.OFFERS.MAX),
 });
 
 // структура данних путнку меню
@@ -80,6 +90,7 @@ const getTripInfoData = (trips) => ({
 
 const menuValues = [`table`, `stats`];
 const filterValues = [`everything`, `future`, `past`];
+
 export const eventTypes = [
   {
     value: `taxi`,
