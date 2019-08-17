@@ -1,12 +1,14 @@
+export const sortEventsByDate = (a, b) => a.eventTime.from.date > b.eventTime.from.date ? 1 : -1;
+
+export const getRandomNum = (min, max) => Math.floor(min + Math.random() * (max + 1 - min));
+
+export const makeFirstSymUp = (value) => `${value[0].toUpperCase()}${value.substring(1)}`;
+
 export const getRandomArray = (arr, min, max) => {
-  const oldArray = arr.slice().sort(() => Math.random() - 0.5);
-  const newArray = [];
+  const sortedArray = arr.slice().sort(() => Math.random() - 0.5);
+  const randomMax = getRandomNum(min, max);
 
-  for (let i = 0; i < min + Math.floor(Math.random() * max); i++) {
-    newArray.push(oldArray[i]);
-  }
-
-  return newArray;
+  return sortedArray.slice(min, randomMax);
 };
 
 export const getFullEventPrice = (eventsList) => (
@@ -16,9 +18,3 @@ export const getFullEventPrice = (eventsList) => (
     return acc + cost + offerFullPrice;
   }, 0)
 );
-
-export const sortEventsByDate = (a, b) => a.eventTime.from.date > b.eventTime.from.date ? 1 : -1;
-
-export const getRandomNum = (min, max) => Math.floor(min + Math.random() * (max + 1 - min));
-
-export const makeFirstSymUp = (value) => `${value[0].toUpperCase()}${value.substring(1)}`;
