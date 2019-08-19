@@ -1,7 +1,7 @@
 import {eventTypes} from '../data.js';
 import {makeFirstSymUp} from '../utils.js';
 
-export const makeEditEventTemplate = ({type: {value, placeholder}, city, eventTime: {from, to}, cost, offers, description, images}) => (
+export const makeEditEventTemplate = ({type: {value, placeholder}, city, eventTime: {from, to}, cost, currency, offers, description, images}) => (
   `<li class="trip-events__item">
     <form class="event  event--edit" action="#" method="post">
       <header class="event__header">
@@ -60,7 +60,7 @@ export const makeEditEventTemplate = ({type: {value, placeholder}, city, eventTi
         <div class="event__field-group  event__field-group--price">
           <label class="event__label" for="event-price-1">
             <span class="visually-hidden">Price</span>
-            &euro;
+            ${currency}
           </label>
           <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${cost}">
         </div>

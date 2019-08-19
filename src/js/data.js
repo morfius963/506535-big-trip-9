@@ -48,6 +48,8 @@ const getEventData = () => {
 
     cost: getRandomNum(100, 500),
 
+    currency: `&euro;`,
+
     offers: getRandomArray([
       {
         name: `Add luggage`,

@@ -1,6 +1,6 @@
 import {makeFirstSymUp} from '../utils.js';
 
-export const makeEventItemTemplate = ({type: {value, placeholder}, city, eventTime: {from, to, activityTime}, cost}) => (
+export const makeEventItemTemplate = ({type: {value, placeholder}, city, eventTime: {from, to, activityTime}, cost, currency}) => (
   `<li class="trip-events__item">
     <div class="event">
       <div class="event__type">
@@ -18,7 +18,7 @@ export const makeEventItemTemplate = ({type: {value, placeholder}, city, eventTi
       </div>
 
       <p class="event__price">
-        &euro;&nbsp;<span class="event__price-value">${cost}</span>
+        ${currency}&nbsp;<span class="event__price-value">${cost}</span>
       </p>
 
       <button class="event__rollup-btn" type="button">
