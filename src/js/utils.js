@@ -28,14 +28,14 @@ export const generateDate = (isRandom = false) => {
 export const formattedDate = (date, value = `date`) => {
   if (value === `date`) {
     const year = date.getFullYear() - 2000;
-    const month = date.getMonth() + 1 >= 10 ? date.getMonth() + 1 : `0${date.getMonth() + 1}`;
-    const day = date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`;
+    const month = String(date.getMonth() + 1).padStart(2, `0`);
+    const day = String(date.getDate()).padStart(2, `0`);
 
     return `${day}/${month}/${year}`;
 
   } else {
-    const hour = date.getHours() >= 10 ? date.getHours() : `0${date.getHours()}`;
-    const minute = date.getMinutes() >= 10 ? date.getMinutes() : `0${date.getMinutes()}`;
+    const hour = String(date.getHours()).padStart(2, `0`);
+    const minute = String(date.getMinutes()).padStart(2, `0`);
 
     return `${hour}:${minute}`;
   }
@@ -45,13 +45,13 @@ export const getTimeDifference = (ts1, ts2) => {
   const minutesFromMs = Math.floor((ts2 - ts1) / (1000 * 60));
 
   const minutes = minutesFromMs % 60;
-  const formattedMinutes = minutes >= 10 ? minutes : `0${minutes}`;
+  const formattedMinutes = String(minutes).padStart(2, `0`);
 
   const hours = ((minutesFromMs - minutes) / 60) % 24;
-  const formattedHours = hours >= 10 ? hours : `0${hours}`;
+  const formattedHours = String(hours).padStart(2, `0`);
 
   const days = Math.floor(((minutesFromMs - minutes) / 60) / 24);
-  const formattedDays = days >= 10 ? days : `0${days}`;
+  const formattedDays = String(days).padStart(2, `0`);
 
   const minutesPart = `${formattedMinutes}M`;
   const hoursPart = hours > 0 ? `${formattedHours}H` : ``;
