@@ -1,6 +1,9 @@
 import {getRandomArray} from './utils.js';
 import {getRandomNum} from './utils.js';
 import {sortEventsByDate} from './utils.js';
+import {generateDate} from './utils.js';
+import {getTimeDifference} from './utils.js';
+import {formattedDate} from './utils.js';
 
 const RANDOM_STR = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus`;
 const MOCK_DATA_COUNT = {
@@ -18,56 +21,61 @@ const MOCK_DATA_COUNT = {
 };
 
 // структура данних однієї точки
-const getEventData = () => ({
-  type: eventTypes[Math.floor(Math.random() * 10)],
+const getEventData = () => {
+  const TODAY_DATE = generateDate(false);
+  const RANDOM_DATE = generateDate(true);
 
-  city: [`Island`, `Paris`, `Malaga`, `Geneva`, `Ternopil`, `New York`, `Chicago`, `London`][Math.floor(Math.random() * 8)],
+  return ({
+    type: eventTypes[Math.floor(Math.random() * 10)],
 
-  images: new Array(6).fill(``).map(() => `${`http://picsum.photos/300/150?r=${Math.random()}`}`),
+    city: [`Island`, `Paris`, `Malaga`, `Geneva`, `Ternopil`, `New York`, `Chicago`, `London`][Math.floor(Math.random() * 8)],
 
-  description: getRandomArray(RANDOM_STR.split(`. `), MOCK_DATA_COUNT.DESCRIPTION.MIN, MOCK_DATA_COUNT.DESCRIPTION.MAX).join(`. `),
+    images: new Array(6).fill(``).map(() => `${`http://picsum.photos/300/150?r=${Math.random()}`}`),
 
-  eventTime: {
-    from: {
-      date: `18/11/19`,
-      time: `10:30`
-    },
-    to: {
-      date: `20/11/19`,
-      time: `18:00`
-    },
-    activityTime: `07H 30M`
-  },
+    description: getRandomArray(RANDOM_STR.split(`. `), MOCK_DATA_COUNT.DESCRIPTION.MIN, MOCK_DATA_COUNT.DESCRIPTION.MAX).join(`. `),
 
-  cost: getRandomNum(100, 500),
+    eventTime: {
+      from: {
+        date: formattedDate(TODAY_DATE, `date`),
+        time: formattedDate(TODAY_DATE, `time`)
+      },
+      to: {
+        date: formattedDate(RANDOM_DATE, `date`),
+        time: formattedDate(RANDOM_DATE, `time`)
+      },
+      activityTime: getTimeDifference(TODAY_DATE.getTime(), RANDOM_DATE.getTime())
+    },
 
-  offers: getRandomArray([
-    {
-      name: `Add luggage`,
-      id: `luggage`,
-      price: 10,
-      isChecked: Boolean(Math.round(Math.random()))
-    },
-    {
-      name: ` Switch to comfort class`,
-      id: `comfort`,
-      price: 150,
-      isChecked: Boolean(Math.round(Math.random()))
-    },
-    {
-      name: `Add meal`,
-      id: `meal`,
-      price: 2,
-      isChecked: Boolean(Math.round(Math.random()))
-    },
-    {
-      name: `Choose seats`,
-      id: `seats`,
-      price: 9,
-      isChecked: Boolean(Math.round(Math.random()))
-    },
-  ], MOCK_DATA_COUNT.OFFERS.MIN, MOCK_DATA_COUNT.OFFERS.MAX),
-});
+    cost: getRandomNum(100, 500),
+
+    offers: getRandomArray([
+      {
+        name: `Add luggage`,
+        id: `luggage`,
+        price: 10,
+        isChecked: Boolean(Math.round(Math.random()))
+      },
+      {
+        name: ` Switch to comfort class`,
+        id: `comfort`,
+        price: 150,
+        isChecked: Boolean(Math.round(Math.random()))
+      },
+      {
+        name: `Add meal`,
+        id: `meal`,
+        price: 2,
+        isChecked: Boolean(Math.round(Math.random()))
+      },
+      {
+        name: `Choose seats`,
+        id: `seats`,
+        price: 9,
+        isChecked: Boolean(Math.round(Math.random()))
+      },
+    ], MOCK_DATA_COUNT.OFFERS.MIN, MOCK_DATA_COUNT.OFFERS.MAX),
+  });
+};
 
 // структура данних путнку меню
 const getMenuData = (value) => ({
