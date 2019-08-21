@@ -156,7 +156,7 @@ export const eventTypes = [
   }
 ];
 
-export const events = new Array(MOCK_DATA_COUNT.EVENTS.COUNT).fill(``).map(getEventData).sort(sortEventsByDate);
+export const eventsData = new Array(MOCK_DATA_COUNT.EVENTS.COUNT).fill(``).map(getEventData).sort(sortEventsByDate);
 export const menuData = menuValues.map(getMenuData);
-export const filters = filterValues.map(getFilterData);
-export const tripInfo = getTripInfoData(events);
+export const filtersData = filterValues.map(getFilterData);
+export const tripInfoData = getTripInfoData(eventsData);

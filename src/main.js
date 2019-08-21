@@ -1,45 +1,79 @@
-import {makeMenuTemplate} from './js/components/menu.js';
-import {makeFilterTemplate} from './js/components/filters.js';
-import {makeEventItemTemplate} from './js/components/event.js';
-import {makeEditEventTemplate} from './js/components/edit-event.js';
-import {makeTripInfoTemplate} from './js/components/trip-info.js';
-import {makeTripContentTemplate} from './js/components/trip-content.js';
-import {makeSortListTemplate} from './js/components/sort-list.js';
-import {makeDayContentTemplate} from './js/components/main-content.js';
-import {events} from './js/data.js';
+import Menu from './js/components/menu.js';
+import Filters from './js/components/filters.js';
+import Event from './js/components/event.js';
+import EventEdit from './js/components/edit-event.js';
+import TripInfo from './js/components/trip-info.js';
+import TripContent from './js/components/trip-content.js';
+import SortList from './js/components/sort-list.js';
+import MainContent from './js/components/main-content.js';
+import {eventsData} from './js/data.js';
 import {menuData} from './js/data.js';
-import {filters} from './js/data.js';
-import {tripInfo} from './js/data.js';
+import {filtersData} from './js/data.js';
+import {tripInfoData} from './js/data.js';
 import {getFullEventPrice} from './js/utils.js';
+import {renderElement} from './js/utils.js';
 
-const renderComponent = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
-};
+const tripInfo = new TripInfo(tripInfoData);
+const menu = new Menu(menuData);
+const filters = new Filters(filtersData);
+const sortList = new SortList();
+const tripContent = new TripContent();
+const mainContent = new MainContent();
 
 const tripInfoContainer = document.querySelector(`.trip-main__trip-info`);
 const menuContainer = document.querySelector(`.trip-main__visually-hidden-menu`);
 const filterContainer = document.querySelector(`.trip-main__visually-hidden-filter`);
-const eventsContainer = document.querySelector(`.trip-events`);
+const eventsContent = document.querySelector(`.trip-events`);
 
-const renderMockComponents = () => {
-  renderComponent(tripInfoContainer, makeTripInfoTemplate(tripInfo), `afterbegin`);
-  renderComponent(menuContainer, makeMenuTemplate(menuData), `afterend`);
-  renderComponent(filterContainer, makeFilterTemplate(filters), `afterend`);
-  renderComponent(eventsContainer, makeSortListTemplate(), `beforeend`);
-  renderComponent(eventsContainer, makeTripContentTemplate(), `beforeend`);
+renderElement(tripInfoContainer, tripInfo.getElement(), `afterbegin`);
+renderElement(menuContainer, menu.getElement(), `afterend`);
+renderElement(filterContainer, filters.getElement(), `afterend`);
+renderElement(eventsContent, sortList.getElement(), `beforeend`);
+renderElement(eventsContent, tripContent.getElement(), `beforeend`);
 
-  const tripEventsContent = document.querySelector(`.trip-days`);
-  renderComponent(tripEventsContent, makeDayContentTemplate(), `beforeend`);
+const tripDaysContent = document.querySelector(`.trip-days`);
+renderElement(tripDaysContent, mainContent.getElement(), `beforeend`);
+const eventsContainer = document.querySelector(`.trip-events__list`);
 
-  const tripEventsList = tripEventsContent.querySelector(`.trip-events__list`);
-  renderComponent(tripEventsList, makeEditEventTemplate(events[0]), `beforeend`);
+const renderEvent = (eventData) => {
+  const eventItem = new Event(eventData);
+  const eventEdit = new EventEdit(eventData);
 
-  for (let i = 1; i <= events.length - 1; i++) {
-    renderComponent(tripEventsList, makeEventItemTemplate(events[i]), `beforeend`);
-  }
+  const onEscKeyDown = (evt) => {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      eventsContainer.replaceChild(eventItem.getElement(), eventEdit.getElement());
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    }
+  };
+
+  eventItem.getElement()
+    .querySelector(`.event__rollup-btn`)
+    .addEventListener(`click`, () => {
+      eventsContainer.replaceChild(eventEdit.getElement(), eventItem.getElement());
+      document.addEventListener(`keydown`, onEscKeyDown);
+    });
+
+  eventEdit.getElement()
+  .querySelector(`.event__rollup-btn`)
+  .addEventListener(`click`, () => {
+    eventsContainer.replaceChild(eventItem.getElement(), eventEdit.getElement());
+    document.removeEventListener(`keydown`, onEscKeyDown);
+  });
+
+  eventEdit.getElement()
+    .querySelector(`.event--edit`)
+    .addEventListener(`submit`, (evt) => {
+      evt.preventDefault();
+      eventsContainer.replaceChild(eventItem.getElement(), eventEdit.getElement());
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    });
+
+  renderElement(eventsContainer, eventItem.getElement(), `beforeend`);
 };
 
-renderMockComponents();
+eventsData.forEach((eventItem) => {
+  renderEvent(eventItem);
+});
 
 const fullTripPriceElem = document.querySelector(`.trip-info__cost-value`);
-fullTripPriceElem.textContent = getFullEventPrice(events);
+fullTripPriceElem.textContent = getFullEventPrice(eventsData);
