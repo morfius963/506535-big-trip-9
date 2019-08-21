@@ -54,6 +54,13 @@ const renderEvent = (eventData) => {
     });
 
   eventEdit.getElement()
+  .querySelector(`.event__rollup-btn`)
+  .addEventListener(`click`, () => {
+    eventsContainer.replaceChild(eventItem.getElement(), eventEdit.getElement());
+    document.removeEventListener(`keydown`, onEscKeyDown);
+  });
+
+  eventEdit.getElement()
     .querySelector(`.event--edit`)
     .addEventListener(`submit`, (evt) => {
       evt.preventDefault();
