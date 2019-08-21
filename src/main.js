@@ -6,6 +6,7 @@ import TripInfo from './js/components/trip-info.js';
 import TripContent from './js/components/trip-content.js';
 import SortList from './js/components/sort-list.js';
 import MainContent from './js/components/main-content.js';
+import NoPoints from './js/components/no-points.js';
 import {eventsData} from './js/data.js';
 import {menuData} from './js/data.js';
 import {filtersData} from './js/data.js';
@@ -19,25 +20,17 @@ const filters = new Filters(filtersData);
 const sortList = new SortList();
 const tripContent = new TripContent();
 const mainContent = new MainContent();
+const noPointsItem = new NoPoints();
 
 const tripInfoContainer = document.querySelector(`.trip-main__trip-info`);
 const menuContainer = document.querySelector(`.trip-main__visually-hidden-menu`);
 const filterContainer = document.querySelector(`.trip-main__visually-hidden-filter`);
 const eventsContent = document.querySelector(`.trip-events`);
 
-renderElement(tripInfoContainer, tripInfo.getElement(), `afterbegin`);
-renderElement(menuContainer, menu.getElement(), `afterend`);
-renderElement(filterContainer, filters.getElement(), `afterend`);
-renderElement(eventsContent, sortList.getElement(), `beforeend`);
-renderElement(eventsContent, tripContent.getElement(), `beforeend`);
-
-const tripDaysContent = document.querySelector(`.trip-days`);
-renderElement(tripDaysContent, mainContent.getElement(), `beforeend`);
-const eventsContainer = document.querySelector(`.trip-events__list`);
-
 const renderEvent = (eventData) => {
   const eventItem = new Event(eventData);
   const eventEdit = new EventEdit(eventData);
+  const eventsContainer = document.querySelector(`.trip-events__list`);
 
   const onEscKeyDown = (evt) => {
     if (evt.key === `Escape` || evt.key === `Esc`) {
@@ -71,9 +64,32 @@ const renderEvent = (eventData) => {
   renderElement(eventsContainer, eventItem.getElement(), `beforeend`);
 };
 
-eventsData.forEach((eventItem) => {
-  renderEvent(eventItem);
-});
+const renderHeaderComponents = () => {
+  renderElement(tripInfoContainer, tripInfo.getElement(), `afterbegin`);
+  renderElement(menuContainer, menu.getElement(), `afterend`);
+  renderElement(filterContainer, filters.getElement(), `afterend`);
+};
+
+const renderMainComponents = () => {
+  renderElement(eventsContent, sortList.getElement(), `beforeend`);
+  renderElement(eventsContent, tripContent.getElement(), `beforeend`);
+
+  const tripDaysContent = document.querySelector(`.trip-days`);
+
+  renderElement(tripDaysContent, mainContent.getElement(), `beforeend`);
+
+  eventsData.forEach((eventItem) => {
+    renderEvent(eventItem);
+  });
+};
+
+renderHeaderComponents();
+
+if (eventsData.length > 0) {
+  renderMainComponents();
+} else {
+  renderElement(eventsContent, noPointsItem.getElement(), `beforeend`);
+}
 
 const fullTripPriceElem = document.querySelector(`.trip-info__cost-value`);
 fullTripPriceElem.textContent = getFullEventPrice(eventsData);
