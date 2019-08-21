@@ -92,13 +92,21 @@ const getFilterData = (value) => ({
 });
 
 // структура данних інформації про подорож
-const getTripInfoData = (trips) => ({
-  cities: trips.map(({city}) => city),
-  date: {
-    start: trips[0].eventTime.from.date,
-    end: trips[trips.length - 1].eventTime.to.date
-  }
-});
+const getTripInfoData = (trips) => trips.length > 0
+  ? ({
+    cities: trips.map(({city}) => city),
+    date: {
+      start: trips[0].eventTime.from.date,
+      end: trips[trips.length - 1].eventTime.to.date
+    }
+  })
+  : ({
+    cities: [`First Point`, `Last Point`],
+    date: {
+      start: `Start Date`,
+      end: `End Date`
+    }
+  });
 
 const menuValues = [`table`, `stats`];
 const filterValues = [`everything`, `future`, `past`];
