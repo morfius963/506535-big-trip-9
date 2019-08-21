@@ -59,3 +59,35 @@ export const getTimeDifference = (ts1, ts2) => {
 
   return `${daysPart} ${hoursPart} ${minutesPart}`;
 };
+
+export const POSITION = {
+  afterbegin: `afterbegin`,
+  beforeend: `beforeend`,
+  afterend: `afterend`
+};
+
+export const createElement = (template) => {
+  const newElement = document.createElement(`div`);
+  newElement.innerHTML = template;
+  return newElement.firstChild;
+};
+
+export const renderElement = (container, element, place) => {
+  switch (place) {
+    case POSITION.afterbegin:
+      container.prepend(element);
+      break;
+    case POSITION.beforeend:
+      container.append(element);
+      break;
+    case POSITION.afterend:
+      container.after(element);
+      break;
+  }
+};
+
+export const removeElem = (element) => {
+  if (element) {
+    element.remove();
+  }
+};
