@@ -66,6 +66,7 @@ const renderEvent = (eventData) => {
 
 const renderMainComponents = () => {
   if (eventsData.length === 0) {
+    renderElement(tripInfoContainer, tripInfo.getElement(), `afterbegin`);
     renderElement(eventsContent, noPointsItem.getElement(), `beforeend`);
     return;
   }

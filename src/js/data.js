@@ -101,11 +101,8 @@ const getTripInfoData = (trips) => trips.length > 0
     }
   })
   : ({
-    cities: [`First Point`, `Last Point`],
-    date: {
-      start: `Start Date`,
-      end: `End Date`
-    }
+    cities: [],
+    date: {}
   });
 
 const menuValues = [`table`, `stats`];
