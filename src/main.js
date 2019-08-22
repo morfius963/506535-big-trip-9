@@ -5,7 +5,7 @@ import EventEdit from './js/components/edit-event.js';
 import TripInfo from './js/components/trip-info.js';
 import TripContent from './js/components/trip-content.js';
 import SortList from './js/components/sort-list.js';
-import MainContent from './js/components/main-content.js';
+import TripItemContent from './js/components/trip-item-content.js';
 import NoPoints from './js/components/no-points.js';
 import {eventsData} from './js/data.js';
 import {menuData} from './js/data.js';
@@ -19,7 +19,7 @@ const menu = new Menu(menuData);
 const filters = new Filters(filtersData);
 const sortList = new SortList();
 const tripContent = new TripContent();
-const mainContent = new MainContent();
+const tripItemContent = new TripItemContent();
 const noPointsItem = new NoPoints();
 
 const tripInfoContainer = document.querySelector(`.trip-main__trip-info`);
@@ -79,7 +79,7 @@ const renderMainComponents = () => {
 
   const tripDaysContent = document.querySelector(`.trip-days`);
 
-  renderElement(tripDaysContent, mainContent.getElement(), `beforeend`);
+  renderElement(tripDaysContent, tripItemContent.getElement(), `beforeend`);
 
   eventsData.forEach((eventItem) => {
     renderEvent(eventItem);

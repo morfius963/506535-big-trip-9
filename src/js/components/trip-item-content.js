@@ -1,7 +1,7 @@
 import {createElement} from '../utils.js';
 import {removeElem} from '../utils.js';
 
-class MainContent {
+class TripItemContent {
   constructor() {
     this._element = null;
   }
@@ -33,4 +33,4 @@ class MainContent {
   }
 }
 
-export default MainContent;
+export default TripItemContent;
