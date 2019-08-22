@@ -64,13 +64,15 @@ const renderEvent = (eventData) => {
   renderElement(eventsContainer, eventItem.getElement(), `beforeend`);
 };
 
-const renderHeaderComponents = () => {
+const renderMainComponents = () => {
+  if (eventsData.length === 0) {
+    renderElement(eventsContent, noPointsItem.getElement(), `beforeend`);
+    return;
+  }
+
   renderElement(tripInfoContainer, tripInfo.getElement(), `afterbegin`);
   renderElement(menuContainer, menu.getElement(), `afterend`);
   renderElement(filterContainer, filters.getElement(), `afterend`);
-};
-
-const renderMainComponents = () => {
   renderElement(eventsContent, sortList.getElement(), `beforeend`);
   renderElement(eventsContent, tripContent.getElement(), `beforeend`);
 
@@ -83,13 +85,7 @@ const renderMainComponents = () => {
   });
 };
 
-renderHeaderComponents();
-
-if (eventsData.length > 0) {
-  renderMainComponents();
-} else {
-  renderElement(eventsContent, noPointsItem.getElement(), `beforeend`);
-}
+renderMainComponents();
 
 const fullTripPriceElem = document.querySelector(`.trip-info__cost-value`);
 fullTripPriceElem.textContent = getFullEventPrice(eventsData);
