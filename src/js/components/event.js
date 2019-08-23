@@ -2,8 +2,10 @@ import {makeFirstSymUp} from '../utils.js';
 import {createElement} from '../utils.js';
 import {removeElem} from '../utils.js';
 
+const MAX_OFFERS_COUNT = 3;
+
 class Event {
-  constructor({type: {value, placeholder}, city, eventTime: {from, to, activityTime}, cost, currency}) {
+  constructor({type: {value, placeholder}, city, eventTime: {from, to, activityTime}, cost, currency, offers}) {
     this._typeValue = value;
     this._typePlaceholder = placeholder;
     this._city = city;
@@ -12,6 +14,7 @@ class Event {
     this._activityTime = activityTime;
     this._cost = cost;
     this._currency = currency;
+    this._offers = offers;
     this._element = null;
   }
 
@@ -48,6 +51,15 @@ class Event {
         <p class="event__price">
           ${this._currency}&nbsp;<span class="event__price-value">${this._cost}</span>
         </p>
+
+        <h4 class="visually-hidden">Offers:</h4>
+          <ul class="event__selected-offers">
+            ${this._offers.slice(0, MAX_OFFERS_COUNT).filter(({isChecked}) => isChecked).map(({name, price}) => `<li class="event__offer">
+              <span class="event__offer-title">${name}</span>
+              &plus;
+              ${this._currency}&nbsp;<span class="event__offer-price">${price}</span>
+            </li>`).join(``)}
+        </ul>
 
         <button class="event__rollup-btn" type="button">
           <span class="visually-hidden">Open event</span>

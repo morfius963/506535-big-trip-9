@@ -1,7 +1,7 @@
 import {createElement} from '../utils.js';
 import {removeElem} from '../utils.js';
 
-class MainContent {
+class NoPoints {
   constructor() {
     this._element = null;
   }
@@ -20,17 +20,8 @@ class MainContent {
   }
 
   getTemplate() {
-    return `<li class="trip-days__item day">
-      <div class="day__info">
-        <span class="day__counter">1</span>
-        <time class="day__date" datetime="2019-03-18">MAR 18</time>
-      </div>
-      
-      <ul class="trip-events__list">
-
-      </ul>
-    </li>`;
+    return `<p class="trip-events__msg">Click New Event to create your first point</p>`;
   }
 }
 
-export default MainContent;
+export default NoPoints;

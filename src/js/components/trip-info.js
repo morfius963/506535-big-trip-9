@@ -25,14 +25,35 @@ class TripInfo {
     this._element = null;
   }
 
+  getCitiesString() {
+    const {_cities: cities} = this;
+
+    if (cities.length > 3) {
+      return `${this._cities[0]}${BIG_SEPARATOR}${this._cities[this._cities.length - 1]}`;
+    }
+
+    if (cities.length > 0) {
+      return `${this._cities.join(SMALL_SEPARATOR)}`;
+    }
+
+    return SMALL_SEPARATOR;
+  }
+
+  getDatesString() {
+    const {_dateStart: start, _dateEnd: end} = this;
+
+    if (start && end) {
+      return `${this._dateStart}${SMALL_SEPARATOR}${this._dateEnd}`;
+    }
+
+    return SMALL_SEPARATOR;
+  }
+
   getTemplate() {
     return `<div class="trip-info__main">
-    <h1 class="trip-info__title">${this._cities.length > 3
-    ? `${this._cities[0]}${BIG_SEPARATOR}${this._cities[this._cities.length - 1]}`
-    : `${this._cities.join(SMALL_SEPARATOR)}`}</h1>
-
-    <p class="trip-info__dates">${this._dateStart}&nbsp;&mdash;&nbsp;${this._dateEnd}</p>
-  </div>`;
+      <h1 class="trip-info__title">${this.getCitiesString()}</h1>
+      <p class="trip-info__dates">${this.getDatesString()}</p>
+    </div>`;
   }
 }
 
