@@ -1,10 +1,11 @@
 import {eventTypes} from '../data.js';
 import {makeFirstSymUp} from '../utils.js';
-import {createElement} from '../utils.js';
-import {removeElem} from '../utils.js';
+import {formattedDate} from '../utils.js';
+import AbstractComponent from './abstract-component.js';
 
-class EditEvent {
+class EditEvent extends AbstractComponent {
   constructor({type: {value, placeholder}, city, eventTime: {from, to}, cost, currency, offers, description, images}) {
+    super();
     this._typeValue = value;
     this._typePlaceholder = placeholder;
     this._city = city;
@@ -15,20 +16,6 @@ class EditEvent {
     this._offers = offers;
     this._description = description;
     this._images = images;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    removeElem(this._element);
-    this._element = null;
   }
 
   getTemplate() {
@@ -79,12 +66,12 @@ class EditEvent {
             <label class="visually-hidden" for="event-start-time-1">
               From
             </label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${this._eventTimeFrom.date} ${this._eventTimeFrom.time}">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formattedDate(this._eventTimeFrom.date, `date`)} ${formattedDate(this._eventTimeFrom.time, `time`)}">
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">
               To
             </label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${this._eventTimeTo.date} ${this._eventTimeTo.time}">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formattedDate(this._eventTimeTo.date, `date`)} ${formattedDate(this._eventTimeTo.time, `time`)}">
           </div>
 
           <div class="event__field-group  event__field-group--price">

@@ -1,11 +1,11 @@
 import {makeFirstSymUp} from '../utils.js';
-import {createElement} from '../utils.js';
-import {removeElem} from '../utils.js';
+import {formattedDate} from '../utils.js';
+import {formattedTimeDifference} from '../utils.js';
+import AbstractComponent from './abstract-component.js';
 
-const MAX_OFFERS_COUNT = 3;
-
-class Event {
+class Event extends AbstractComponent {
   constructor({type: {value, placeholder}, city, eventTime: {from, to, activityTime}, cost, currency, offers}) {
+    super();
     this._typeValue = value;
     this._typePlaceholder = placeholder;
     this._city = city;
@@ -15,20 +15,7 @@ class Event {
     this._cost = cost;
     this._currency = currency;
     this._offers = offers;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    removeElem(this._element);
-    this._element = null;
+    this._MAX_OFFERS_COUNT = 3;
   }
 
   getTemplate() {
@@ -41,11 +28,11 @@ class Event {
 
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="${this._eventTimeFrom.date}T${this._eventTimeFrom.time}">${this._eventTimeFrom.time}</time>
+            <time class="event__start-time" datetime="${formattedDate(this._eventTimeFrom.date, `date`)}T${formattedDate(this._eventTimeFrom.time, `time`)}">${formattedDate(this._eventTimeFrom.time, `time`)}</time>
             &mdash;
-            <time class="event__end-time" datetime="${this._eventTimeTo.date}T${this._eventTimeTo.time}">${this._eventTimeTo.time}</time>
+            <time class="event__end-time" datetime="${formattedDate(this._eventTimeTo.date, `date`)}T${formattedDate(this._eventTimeTo.time, `time`)}">${formattedDate(this._eventTimeTo.time, `time`)}</time>
           </p>
-          <p class="event__duration">${this._activityTime}</p>
+          <p class="event__duration">${formattedTimeDifference(this._activityTime)}</p>
         </div>
 
         <p class="event__price">
@@ -54,7 +41,7 @@ class Event {
 
         <h4 class="visually-hidden">Offers:</h4>
           <ul class="event__selected-offers">
-            ${this._offers.slice(0, MAX_OFFERS_COUNT).filter(({isChecked}) => isChecked).map(({name, price}) => `<li class="event__offer">
+            ${this._offers.slice(0, this._MAX_OFFERS_COUNT).filter(({isChecked}) => isChecked).map(({name, price}) => `<li class="event__offer">
               <span class="event__offer-title">${name}</span>
               &plus;
               ${this._currency}&nbsp;<span class="event__offer-price">${price}</span>
