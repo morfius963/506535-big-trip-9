@@ -19,13 +19,9 @@ export const getFullEventPrice = (eventsList) => (
   }, 0)
 );
 
-export const generateDate = (isRandom = false) => {
-  const timestamp = isRandom ? Date.now() + Math.round(Math.random() * 3 * 24 * 60 * 60 * 1000) : Date.now();
+export const formattedDate = (ts, value = `date`) => {
+  const date = new Date(ts);
 
-  return new Date(timestamp);
-};
-
-export const formattedDate = (date, value = `date`) => {
   if (value === `date`) {
     const year = date.getFullYear() - 2000;
     const month = String(date.getMonth() + 1).padStart(2, `0`);

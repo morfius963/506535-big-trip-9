@@ -28,9 +28,9 @@ class Event extends AbstractComponent {
 
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="${formattedDate(this._eventTimeFrom.date, `date`)}T${formattedDate(this._eventTimeFrom.time, `time`)}">${formattedDate(this._eventTimeFrom.time, `time`)}</time>
+            <time class="event__start-time" datetime="${formattedDate(this._eventTimeFrom, `date`)}T${formattedDate(this._eventTimeFrom, `time`)}">${formattedDate(this._eventTimeFrom, `time`)}</time>
             &mdash;
-            <time class="event__end-time" datetime="${formattedDate(this._eventTimeTo.date, `date`)}T${formattedDate(this._eventTimeTo.time, `time`)}">${formattedDate(this._eventTimeTo.time, `time`)}</time>
+            <time class="event__end-time" datetime="${formattedDate(this._eventTimeTo, `date`)}T${formattedDate(this._eventTimeTo, `time`)}">${formattedDate(this._eventTimeTo, `time`)}</time>
           </p>
           <p class="event__duration">${formattedTimeDifference(this._activityTime)}</p>
         </div>

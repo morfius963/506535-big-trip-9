@@ -1,6 +1,5 @@
 import {getRandomArray} from './utils.js';
 import {getRandomNum} from './utils.js';
-import {generateDate} from './utils.js';
 
 const RANDOM_STR = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus`;
 const MOCK_DATA_COUNT = {
@@ -19,8 +18,11 @@ const MOCK_DATA_COUNT = {
 
 // структура данних однієї точки
 const getEventData = () => {
-  const TODAY_DATE = generateDate(false);
-  const RANDOM_DATE = generateDate(true);
+  const RANDOM_DATE = new Array(2)
+    .fill(``)
+    .map(() => Date.now() + Math.round(Math.random() * 7 * 24 * 60 * 60 * 1000))
+    .sort((a, b) => a - b);
+  const [FROM_DATE, TO_DATE] = RANDOM_DATE;
 
   return ({
     type: eventTypes[Math.floor(Math.random() * 10)],
@@ -32,15 +34,9 @@ const getEventData = () => {
     description: getRandomArray(RANDOM_STR.split(`. `), MOCK_DATA_COUNT.DESCRIPTION.MIN, MOCK_DATA_COUNT.DESCRIPTION.MAX).join(`. `),
 
     eventTime: {
-      from: {
-        date: TODAY_DATE,
-        time: TODAY_DATE
-      },
-      to: {
-        date: RANDOM_DATE,
-        time: RANDOM_DATE
-      },
-      activityTime: RANDOM_DATE.getTime() - TODAY_DATE.getTime()
+      from: FROM_DATE,
+      to: TO_DATE,
+      activityTime: TO_DATE - FROM_DATE
     },
 
     cost: getRandomNum(100, 500),
@@ -93,8 +89,8 @@ const getTripInfoData = (trips) => trips.length > 0
   ? ({
     cities: trips.map(({city}) => city),
     date: {
-      start: trips[0].eventTime.from.date,
-      end: trips[trips.length - 1].eventTime.to.date
+      start: trips[0].eventTime.from,
+      end: trips[trips.length - 1].eventTime.to
     }
   })
   : ({
@@ -158,7 +154,7 @@ export const eventTypes = [
   }
 ];
 
-export const eventsData = new Array(MOCK_DATA_COUNT.EVENTS.COUNT).fill(``).map(getEventData).sort((a, b) => a.eventTime.from.date - b.eventTime.from.date);
+export const eventsData = new Array(MOCK_DATA_COUNT.EVENTS.COUNT).fill(``).map(getEventData).sort((a, b) => a.eventTime.from - b.eventTime.from);
 export const menuData = menuValues.map(getMenuData);
 export const filtersData = filterValues.map(getFilterData);
 export const tripInfoData = getTripInfoData(eventsData);
