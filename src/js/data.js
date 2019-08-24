@@ -16,7 +16,6 @@ const MOCK_DATA_COUNT = {
   }
 };
 
-// структура данних однієї точки
 const getEventData = () => {
   const RANDOM_DATE = new Array(2)
     .fill(``)
@@ -72,19 +71,16 @@ const getEventData = () => {
   });
 };
 
-// структура данних путнку меню
 const getMenuData = (value) => ({
   name: value,
   isActive: value === `table` ? true : false
 });
 
-// структура данних фільтру
 const getFilterData = (value) => ({
   name: value,
   isChecked: value === `everything` ? true : false
 });
 
-// структура данних інформації про подорож
 const getTripInfoData = (trips) => trips.length > 0
   ? ({
     cities: trips.map(({city}) => city),
