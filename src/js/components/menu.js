@@ -1,24 +1,10 @@
 import {makeFirstSymUp} from '../utils.js';
-import {createElement} from '../utils.js';
-import {removeElem} from '../utils.js';
+import AbstractComponent from './abstract-component.js';
 
-class Menu {
+class Menu extends AbstractComponent {
   constructor(menuValue) {
+    super();
     this._menuValue = menuValue;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    removeElem(this._element);
-    this._element = null;
   }
 
   getTemplate() {

@@ -1,4 +1,4 @@
-export const sortEventsByDate = (a, b) => a.eventTime.to.date > b.eventTime.to.date ? 1 : -1;
+export const sortEventsByTime = (a, b) => a.eventTime.activityTime - b.eventTime.activityTime;
 
 export const getRandomNum = (min, max) => Math.floor(min + Math.random() * (max + 1 - min));
 
@@ -19,13 +19,9 @@ export const getFullEventPrice = (eventsList) => (
   }, 0)
 );
 
-export const generateDate = (isRandom = false) => {
-  const timestamp = isRandom ? Date.now() + Math.round(Math.random() * 3 * 24 * 60 * 60 * 1000) : Date.now();
+export const formattedDate = (ts, value = `date`) => {
+  const date = new Date(ts);
 
-  return new Date(timestamp);
-};
-
-export const formattedDate = (date, value = `date`) => {
   if (value === `date`) {
     const year = date.getFullYear() - 2000;
     const month = String(date.getMonth() + 1).padStart(2, `0`);
@@ -41,8 +37,8 @@ export const formattedDate = (date, value = `date`) => {
   }
 };
 
-export const getTimeDifference = (ts1, ts2) => {
-  const minutesFromMs = Math.floor((ts2 - ts1) / (1000 * 60));
+export const formattedTimeDifference = (ts) => {
+  const minutesFromMs = Math.floor((ts) / (1000 * 60));
 
   const minutes = minutesFromMs % 60;
   const formattedMinutes = String(minutes).padStart(2, `0`);
@@ -54,7 +50,7 @@ export const getTimeDifference = (ts1, ts2) => {
   const formattedDays = String(days).padStart(2, `0`);
 
   const minutesPart = `${formattedMinutes}M`;
-  const hoursPart = hours > 0 ? `${formattedHours}H` : ``;
+  const hoursPart = hours > 0 || days > 0 ? `${formattedHours}H` : ``;
   const daysPart = days > 0 ? `${formattedDays}D` : ``;
 
   return `${daysPart} ${hoursPart} ${minutesPart}`;

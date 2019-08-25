@@ -1,52 +1,38 @@
-import {createElement} from '../utils.js';
-import {removeElem} from '../utils.js';
+import {formattedDate} from '../utils.js';
+import AbstractComponent from "./abstract-component.js";
 
-const BIG_SEPARATOR = ` &mdash; ... &mdash; `;
-const SMALL_SEPARATOR = ` &mdash; `;
-
-class TripInfo {
+class TripInfo extends AbstractComponent {
   constructor({cities, date: {start, end}}) {
+    super();
     this._cities = cities;
     this._dateStart = start;
     this._dateEnd = end;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    removeElem(this._element);
-    this._element = null;
+    this._BIG_SEPARATOR = ` &mdash; ... &mdash; `;
+    this._SMALL_SEPARATOR = ` &mdash; `;
   }
 
   getCitiesString() {
     const {_cities: cities} = this;
 
     if (cities.length > 3) {
-      return `${this._cities[0]}${BIG_SEPARATOR}${this._cities[this._cities.length - 1]}`;
+      return `${this._cities[0]}${this._BIG_SEPARATOR}${this._cities[this._cities.length - 1]}`;
     }
 
     if (cities.length > 0) {
-      return `${this._cities.join(SMALL_SEPARATOR)}`;
+      return `${this._cities.join(this._SMALL_SEPARATOR)}`;
     }
 
-    return SMALL_SEPARATOR;
+    return this._SMALL_SEPARATOR;
   }
 
   getDatesString() {
     const {_dateStart: start, _dateEnd: end} = this;
 
     if (start && end) {
-      return `${this._dateStart}${SMALL_SEPARATOR}${this._dateEnd}`;
+      return `${formattedDate(this._dateStart, `date`)}${this._SMALL_SEPARATOR}${formattedDate(this._dateEnd, `date`)}`;
     }
 
-    return SMALL_SEPARATOR;
+    return this._SMALL_SEPARATOR;
   }
 
   getTemplate() {
