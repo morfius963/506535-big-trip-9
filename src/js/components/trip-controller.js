@@ -35,6 +35,8 @@ class TripController {
     this._trips.forEach((eventItem) => {
       this._renderEvent(eventItem);
     });
+
+    this._sortList.getElement().addEventListener(`click`, (evt) => this._onSortListClick(evt));
   }
 
   _renderEvent(eventData) {
@@ -72,6 +74,28 @@ class TripController {
       });
 
     renderElement(eventsContainer, eventItem.getElement(), `beforeend`);
+  }
+
+  _onSortListClick(evt) {
+    if (evt.target.tagName.toLowerCase() !== `input`) {
+      return;
+    }
+
+    this._eventsList.getElement().innerHTML = ``;
+
+    switch (evt.target.dataset.sortType) {
+      case `time`:
+        const sortedEventsByTime = this._trips.slice().sort((a, b) => a.eventTime.activityTime - b.eventTime.activityTime);
+        sortedEventsByTime.forEach((tripMock) => this._renderEvent(tripMock));
+        break;
+      case `price`:
+        const sortedEventsByPrice = this._trips.slice().sort((a, b) => a.cost - b.cost);
+        sortedEventsByPrice.forEach((tripMock) => this._renderEvent(tripMock));
+        break;
+      case `default`:
+        this._trips.forEach((tripMock) => this._renderEvent(tripMock));
+        break;
+    }
   }
 }
 
