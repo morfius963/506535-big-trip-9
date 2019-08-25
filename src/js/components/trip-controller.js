@@ -79,19 +79,23 @@ class TripController {
   _onSortListClick(evt) {
     this._eventsList.getElement().innerHTML = ``;
 
+    let sortedEvents = this._trips;
+
     switch (evt.target.dataset.sortType) {
       case `time`:
         const sortedEventsByTime = this._trips.slice().sort((a, b) => a.eventTime.activityTime - b.eventTime.activityTime);
-        sortedEventsByTime.forEach((tripMock) => this._renderEvent(tripMock));
+        sortedEvents = sortedEventsByTime;
         break;
       case `price`:
         const sortedEventsByPrice = this._trips.slice().sort((a, b) => a.cost - b.cost);
-        sortedEventsByPrice.forEach((tripMock) => this._renderEvent(tripMock));
+        sortedEvents = sortedEventsByPrice;
         break;
       case `default`:
-        this._trips.forEach((tripMock) => this._renderEvent(tripMock));
+        sortedEvents = this._trips.slice();
         break;
     }
+
+    sortedEvents.forEach((tripMock) => this._renderEvent(tripMock));
   }
 }
 
