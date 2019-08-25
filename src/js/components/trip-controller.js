@@ -36,7 +36,7 @@ class TripController {
       this._renderEvent(eventItem);
     });
 
-    this._sortList.getElement().addEventListener(`click`, (evt) => this._onSortListClick(evt));
+    this._sortList.getElement().addEventListener(`change`, (evt) => this._onSortListClick(evt));
   }
 
   _renderEvent(eventData) {
@@ -77,10 +77,6 @@ class TripController {
   }
 
   _onSortListClick(evt) {
-    if (evt.target.tagName.toLowerCase() !== `input`) {
-      return;
-    }
-
     this._eventsList.getElement().innerHTML = ``;
 
     switch (evt.target.dataset.sortType) {
