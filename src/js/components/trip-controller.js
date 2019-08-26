@@ -1,4 +1,4 @@
-import SortList from './sort-list.js';
+import Sort from './sort.js';
 import TripContent from './trip-content.js';
 import TripItemContent from './trip-item-content.js';
 import TripDayInfo from './trip-day-info.js';
@@ -12,7 +12,7 @@ class TripController {
   constructor(container, trips) {
     this._container = container;
     this._trips = trips;
-    this._sortList = new SortList();
+    this._sort = new Sort();
     this._tripContent = new TripContent();
     this._tripItemContent = new TripItemContent();
     this._tripDayInfo = new TripDayInfo();
@@ -26,7 +26,7 @@ class TripController {
       return;
     }
 
-    renderElement(this._container, this._sortList.getElement(), `beforeend`);
+    renderElement(this._container, this._sort.getElement(), `beforeend`);
     renderElement(this._container, this._tripContent.getElement(), `beforeend`);
     renderElement(this._tripContent.getElement(), this._tripItemContent.getElement(), `beforeend`);
     renderElement(this._tripItemContent.getElement(), this._tripDayInfo.getElement(), `beforeend`);
@@ -36,7 +36,7 @@ class TripController {
       this._renderEvent(eventItem);
     });
 
-    this._sortList.getElement().addEventListener(`change`, (evt) => this._onSortListClick(evt));
+    this._sort.getElement().addEventListener(`change`, (evt) => this._onSortListClick(evt));
   }
 
   _renderEvent(eventData) {
