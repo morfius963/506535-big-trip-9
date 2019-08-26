@@ -1,4 +1,4 @@
-import SortList from './sort-list.js';
+import Sort from './sort.js';
 import TripContent from './trip-content.js';
 import TripItemContent from './trip-item-content.js';
 import TripDayInfo from './trip-day-info.js';
@@ -12,7 +12,7 @@ class TripController {
   constructor(container, trips) {
     this._container = container;
     this._trips = trips;
-    this._sortList = new SortList();
+    this._sort = new Sort();
     this._tripContent = new TripContent();
     this._tripItemContent = new TripItemContent();
     this._tripDayInfo = new TripDayInfo();
@@ -26,7 +26,7 @@ class TripController {
       return;
     }
 
-    renderElement(this._container, this._sortList.getElement(), `beforeend`);
+    renderElement(this._container, this._sort.getElement(), `beforeend`);
     renderElement(this._container, this._tripContent.getElement(), `beforeend`);
     renderElement(this._tripContent.getElement(), this._tripItemContent.getElement(), `beforeend`);
     renderElement(this._tripItemContent.getElement(), this._tripDayInfo.getElement(), `beforeend`);
@@ -35,6 +35,8 @@ class TripController {
     this._trips.forEach((eventItem) => {
       this._renderEvent(eventItem);
     });
+
+    this._sort.getElement().addEventListener(`change`, (evt) => this._onSortListClick(evt));
   }
 
   _renderEvent(eventData) {
@@ -72,6 +74,28 @@ class TripController {
       });
 
     renderElement(eventsContainer, eventItem.getElement(), `beforeend`);
+  }
+
+  _onSortListClick(evt) {
+    this._eventsList.getElement().innerHTML = ``;
+
+    let sortedEvents = this._trips;
+
+    switch (evt.target.dataset.sortType) {
+      case `time`:
+        const sortedEventsByTime = this._trips.slice().sort((a, b) => a.eventTime.activityTime - b.eventTime.activityTime);
+        sortedEvents = sortedEventsByTime;
+        break;
+      case `price`:
+        const sortedEventsByPrice = this._trips.slice().sort((a, b) => a.cost - b.cost);
+        sortedEvents = sortedEventsByPrice;
+        break;
+      case `default`:
+        sortedEvents = this._trips.slice();
+        break;
+    }
+
+    sortedEvents.forEach((tripMock) => this._renderEvent(tripMock));
   }
 }
 
