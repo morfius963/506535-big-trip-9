@@ -83,11 +83,11 @@ class TripController {
 
     switch (evt.target.dataset.sortType) {
       case `time`:
-        const sortedEventsByTime = this._trips.slice().sort((a, b) => a.eventTime.activityTime - b.eventTime.activityTime);
+        const sortedEventsByTime = this._trips.slice().sort((a, b) => b.eventTime.activityTime - a.eventTime.activityTime);
         sortedEvents = sortedEventsByTime;
         break;
       case `price`:
-        const sortedEventsByPrice = this._trips.slice().sort((a, b) => a.cost - b.cost);
+        const sortedEventsByPrice = this._trips.slice().sort((a, b) => b.cost - a.cost);
         sortedEvents = sortedEventsByPrice;
         break;
       case `default`:

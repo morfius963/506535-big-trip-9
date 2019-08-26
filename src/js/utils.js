@@ -1,5 +1,3 @@
-export const sortEventsByTime = (a, b) => a.eventTime.activityTime - b.eventTime.activityTime;
-
 export const getRandomNum = (min, max) => Math.floor(min + Math.random() * (max + 1 - min));
 
 export const makeFirstSymUp = (value) => `${value[0].toUpperCase()}${value.substring(1)}`;
@@ -82,7 +80,7 @@ export const renderElement = (container, element, place) => {
   }
 };
 
-export const removeElem = (element) => {
+export const unrenderElement = (element) => {
   if (element) {
     element.remove();
   }

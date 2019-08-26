@@ -96,56 +96,45 @@ const getTripInfoData = (trips) => trips.length > 0
 
 const menuValues = [`table`, `stats`];
 const filterValues = [`everything`, `future`, `past`];
-
-export const eventTypes = [
+const eventTypes = [
   {
     value: `taxi`,
-    group: `transfer`,
     placeholder: `to`
   },
   {
     value: `bus`,
-    group: `transfer`,
     placeholder: `to`
   },
   {
     value: `train`,
-    group: `transfer`,
     placeholder: `to`
   },
   {
     value: `ship`,
-    group: `transfer`,
     placeholder: `to`
   },
   {
     value: `transport`,
-    group: `transfer`,
     placeholder: `to`
   },
   {
     value: `drive`,
-    group: `transfer`,
     placeholder: `to`
   },
   {
     value: `flight`,
-    group: `transfer`,
     placeholder: `to`
   },
   {
     value: `restaurant`,
-    group: `activity`,
     placeholder: `in`
   },
   {
     value: `check-in`,
-    group: `activity`,
     placeholder: `in`
   },
   {
     value: `sightseeing`,
-    group: `activity`,
     placeholder: `in`
   }
 ];
