@@ -1,5 +1,4 @@
-import {makeFirstSymUp} from '../utils.js';
-import {formattedDate} from '../utils.js';
+import {makeFirstSymUp, formattedDate} from '../utils.js';
 import AbstractComponent from './abstract-component.js';
 
 class EditEvent extends AbstractComponent {
