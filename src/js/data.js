@@ -138,7 +138,7 @@ const eventTypes = [
   }
 ];
 
-export const eventsData = new Array(MOCK_DATA_COUNT.EVENTS.COUNT).fill(``).map(getEventData).sort((a, b) => a.eventTime.from - b.eventTime.from);
+export const eventsData = new Array(MOCK_DATA_COUNT.EVENTS.COUNT).fill(``).map(getEventData);
 export const menuData = menuValues.map(getMenuData);
 export const filtersData = filterValues.map(getFilterData);
 export const tripInfoData = getTripInfoData(eventsData);

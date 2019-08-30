@@ -12,7 +12,7 @@ import {renderElement, unrenderElement} from '../utils.js';
 class TripController {
   constructor(container, trips) {
     this._container = container;
-    this._trips = trips;
+    this._trips = trips.slice().sort((a, b) => a.eventTime.from - b.eventTime.from);
     this._sort = new Sort();
     this._tripContent = new TripContent();
     this._noPoints = new NoPoints();
