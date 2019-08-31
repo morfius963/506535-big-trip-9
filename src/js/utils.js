@@ -20,7 +20,7 @@ export const getFullEventPrice = (eventsList) => (
 );
 
 export const formattedDate = (ts, value = `date`) => {
-  const date = moment(ts);
+  const date = moment(ts, `DD/MM/YY HH:mm`);
 
   if (value === `date`) {
     return date.format(`DD/MM/YY`);
@@ -30,8 +30,8 @@ export const formattedDate = (ts, value = `date`) => {
 };
 
 export const formattedTimeDifference = (ts1, ts2) => {
-  const dateFrom = moment(ts1);
-  const dateTo = moment(ts2);
+  const dateFrom = moment(ts1, `DD/MM/YY HH:mm`);
+  const dateTo = moment(ts2, `DD/MM/YY HH:mm`);
   const diff = dateTo.diff(dateFrom);
   const duration = moment.duration(diff);
 
@@ -41,6 +41,8 @@ export const formattedTimeDifference = (ts1, ts2) => {
 
   return `${daysPart} ${hoursPart} ${minutesPart}`;
 };
+
+export const getDateDiff = (a, b) => moment(a, `DD/MM/YY HH:mm`).valueOf() - moment(b, `DD/MM/YY HH:mm`).valueOf();
 
 export const POSITION = {
   afterbegin: `afterbegin`,
