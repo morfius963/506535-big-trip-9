@@ -1,4 +1,4 @@
-import {formattedDate} from '../utils.js';
+import moment from 'moment';
 import AbstractComponent from "./abstract-component.js";
 
 class TripInfo extends AbstractComponent {
@@ -29,7 +29,7 @@ class TripInfo extends AbstractComponent {
     const {_dateStart: start, _dateEnd: end} = this;
 
     if (start && end) {
-      return `${formattedDate(this._dateStart, `date`)}${this._SMALL_SEPARATOR}${formattedDate(this._dateEnd, `date`)}`;
+      return `${moment(this._dateStart, `DD/MM/YY HH:mm`).format(`DD MMM`)}${this._SMALL_SEPARATOR}${moment(this._dateEnd, `DD/MM/YY HH:mm`).format(`DD MMM`)}`;
     }
 
     return this._SMALL_SEPARATOR;
