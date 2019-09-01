@@ -1,4 +1,4 @@
-export const sortEventsByTime = (a, b) => a.eventTime.activityTime - b.eventTime.activityTime;
+import moment from 'moment';
 
 export const getRandomNum = (min, max) => Math.floor(min + Math.random() * (max + 1 - min));
 
@@ -19,42 +19,18 @@ export const getFullEventPrice = (eventsList) => (
   }, 0)
 );
 
-export const formattedDate = (ts, value = `date`) => {
-  const date = new Date(ts);
+export const formattedTimeDifference = (dateFrom, dateTo) => {
+  const diff = dateTo.diff(dateFrom);
+  const duration = moment.duration(diff);
 
-  if (value === `date`) {
-    const year = date.getFullYear() - 2000;
-    const month = String(date.getMonth() + 1).padStart(2, `0`);
-    const day = String(date.getDate()).padStart(2, `0`);
-
-    return `${day}/${month}/${year}`;
-
-  } else {
-    const hour = String(date.getHours()).padStart(2, `0`);
-    const minute = String(date.getMinutes()).padStart(2, `0`);
-
-    return `${hour}:${minute}`;
-  }
-};
-
-export const formattedTimeDifference = (ts) => {
-  const minutesFromMs = Math.floor((ts) / (1000 * 60));
-
-  const minutes = minutesFromMs % 60;
-  const formattedMinutes = String(minutes).padStart(2, `0`);
-
-  const hours = ((minutesFromMs - minutes) / 60) % 24;
-  const formattedHours = String(hours).padStart(2, `0`);
-
-  const days = Math.floor(((minutesFromMs - minutes) / 60) / 24);
-  const formattedDays = String(days).padStart(2, `0`);
-
-  const minutesPart = `${formattedMinutes}M`;
-  const hoursPart = hours > 0 || days > 0 ? `${formattedHours}H` : ``;
-  const daysPart = days > 0 ? `${formattedDays}D` : ``;
+  const minutesPart = `${String(duration.minutes()).padStart(2, `0`)}M`;
+  const hoursPart = (duration.days() > 0 || duration.hours() > 0) ? `${String(duration.hours()).padStart(2, `0`)}H` : ``;
+  const daysPart = duration.days() > 0 ? `${String(duration.days()).padStart(2, `0`)}D` : ``;
 
   return `${daysPart} ${hoursPart} ${minutesPart}`;
 };
+
+export const getDateDiff = (a, b) => moment(a, `DD/MM/YY HH:mm`).valueOf() - moment(b, `DD/MM/YY HH:mm`).valueOf();
 
 export const POSITION = {
   afterbegin: `afterbegin`,
@@ -82,7 +58,7 @@ export const renderElement = (container, element, place) => {
   }
 };
 
-export const removeElem = (element) => {
+export const unrenderElement = (element) => {
   if (element) {
     element.remove();
   }

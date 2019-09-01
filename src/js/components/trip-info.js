@@ -1,4 +1,3 @@
-import {formattedDate} from '../utils.js';
 import AbstractComponent from "./abstract-component.js";
 
 class TripInfo extends AbstractComponent {
@@ -29,7 +28,7 @@ class TripInfo extends AbstractComponent {
     const {_dateStart: start, _dateEnd: end} = this;
 
     if (start && end) {
-      return `${formattedDate(this._dateStart, `date`)}${this._SMALL_SEPARATOR}${formattedDate(this._dateEnd, `date`)}`;
+      return `${this._dateStart.format(`DD MMM`)}${this._SMALL_SEPARATOR}${this._dateEnd.format(`DD MMM`)}`;
     }
 
     return this._SMALL_SEPARATOR;

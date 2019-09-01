@@ -3,21 +3,28 @@ import TripContent from './trip-content.js';
 import TripItemContent from './trip-item-content.js';
 import TripDayInfo from './trip-day-info.js';
 import EventsList from './events-list.js';
-import Event from './event.js';
-import EventEdit from './edit-event.js';
 import NoPoints from './no-points.js';
-import {renderElement} from '../utils.js';
+import PointController from './point-controller.js';
+
+import moment from 'moment';
+import {renderElement, unrenderElement, getDateDiff} from '../utils.js';
 
 class TripController {
   constructor(container, trips) {
     this._container = container;
-    this._trips = trips;
+    this._trips = trips.slice().sort((a, b) => getDateDiff(a.eventTime.from, b.eventTime.from));
     this._sort = new Sort();
     this._tripContent = new TripContent();
-    this._tripItemContent = new TripItemContent();
-    this._tripDayInfo = new TripDayInfo();
-    this._eventsList = new EventsList();
     this._noPoints = new NoPoints();
+
+    this._sortedTrips = this._trips;
+
+    this._subscriptions = [];
+    this._onDataChange = this._onDataChange.bind(this);
+    this._onChangeView = this._onChangeView.bind(this);
+
+    this._sortEventsByTime = (a, b) => b.eventTime.activityTime - a.eventTime.activityTime;
+    this._sortEventsByPrice = (a, b) => b.cost - a.cost;
   }
 
   init() {
@@ -27,75 +34,114 @@ class TripController {
     }
 
     renderElement(this._container, this._sort.getElement(), `beforeend`);
-    renderElement(this._container, this._tripContent.getElement(), `beforeend`);
-    renderElement(this._tripContent.getElement(), this._tripItemContent.getElement(), `beforeend`);
-    renderElement(this._tripItemContent.getElement(), this._tripDayInfo.getElement(), `beforeend`);
-    renderElement(this._tripItemContent.getElement(), this._eventsList.getElement(), `beforeend`);
-
-    this._trips.forEach((eventItem) => {
-      this._renderEvent(eventItem);
-    });
-
+    this._renderEventsByDay();
     this._sort.getElement().addEventListener(`change`, (evt) => this._onSortListClick(evt));
   }
 
-  _renderEvent(eventData) {
-    const eventItem = new Event(eventData);
-    const eventEdit = new EventEdit(eventData);
-    const eventsContainer = this._eventsList.getElement();
+  _renderEvent(eventsContainer, eventData) {
+    const pointController = new PointController(eventsContainer, eventData, this._onDataChange, this._onChangeView);
+    this._subscriptions.push(pointController.setDefaultView.bind(pointController));
+  }
 
-    const onEscKeyDown = (evt) => {
-      if (evt.key === `Escape` || evt.key === `Esc`) {
-        eventsContainer.replaceChild(eventItem.getElement(), eventEdit.getElement());
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      }
-    };
+  _onDataChange(newData, oldData) {
+    this._trips[this._trips.findIndex((it) => it === oldData)] = newData;
+    this._sortedTrips[this._sortedTrips.findIndex((it) => it === oldData)] = newData;
+    this._renderBoard();
+  }
 
-    eventItem.getElement()
-      .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, () => {
-        eventsContainer.replaceChild(eventEdit.getElement(), eventItem.getElement());
-        document.addEventListener(`keydown`, onEscKeyDown);
+  _onChangeView() {
+    this._subscriptions.forEach((subscription) => subscription());
+  }
+
+  _renderBoard() {
+    const currentSortValue = Array.from(this._sort.getElement().querySelectorAll(`.trip-sort__input`)).find((sortItem) => sortItem.checked).dataset.sortType;
+
+    this._clearAllTrips();
+
+    switch (currentSortValue) {
+      case `time`:
+        this._sortEventsByValue(this._sortedTrips, this._sortEventsByTime);
+        break;
+      case `price`:
+        this._sortEventsByValue(this._sortedTrips, this._sortEventsByPrice);
+        break;
+      case `default`:
+        this._renderEventsByDay();
+        break;
+    }
+  }
+
+  _clearAllTrips() {
+    unrenderElement(this._tripContent.getElement());
+    this._tripContent.removeElement();
+  }
+
+  _renderEventsByDay() {
+    const fromDates = this._trips.map(({eventTime: {from}}) => from).sort((a, b) => getDateDiff(a, b));
+    const formattedDates = fromDates.map((date) => moment(date, `DD/MM/YY HH:mm`).format(`MMM DD`));
+    const uniqueFromDates = [...new Set(formattedDates)];
+
+    this._sortedTrips = this._trips;
+
+    renderElement(this._container, this._tripContent.getElement(), `beforeend`);
+
+    uniqueFromDates.forEach((eventDate, i) => {
+      const tripItemContent = new TripItemContent();
+      const tripDayInfo = new TripDayInfo();
+      const eventsList = new EventsList();
+      const tripsForOneDay = this._trips.filter(({eventTime: {from}}) => moment(from, `DD/MM/YY HH:mm`).format(`MMM DD`) === eventDate);
+      const stringToObjDate = new Date(`${eventDate} ${moment(Date.now()).format(`YYYY`)}`);
+
+      renderElement(this._tripContent.getElement(), tripItemContent.getElement(), `beforeend`);
+      renderElement(tripItemContent.getElement(), tripDayInfo.getElement(), `beforeend`);
+      renderElement(tripItemContent.getElement(), eventsList.getElement(), `beforeend`);
+
+      tripDayInfo.getElement().querySelector(`.day__counter`).textContent = i + 1;
+      tripDayInfo.getElement().querySelector(`.day__date`).textContent = moment(stringToObjDate).format(`MMM DD`);
+      tripDayInfo.getElement().querySelector(`.day__date`).value = moment(stringToObjDate).format(`YYYY-MM-DD`);
+
+      tripsForOneDay.forEach((trip) => {
+        this._renderEvent(eventsList.getElement(), trip);
       });
-
-    eventEdit.getElement()
-    .querySelector(`.event__rollup-btn`)
-    .addEventListener(`click`, () => {
-      eventsContainer.replaceChild(eventItem.getElement(), eventEdit.getElement());
-      document.removeEventListener(`keydown`, onEscKeyDown);
     });
+  }
 
-    eventEdit.getElement()
-      .querySelector(`.event--edit`)
-      .addEventListener(`submit`, (evt) => {
-        evt.preventDefault();
-        eventsContainer.replaceChild(eventItem.getElement(), eventEdit.getElement());
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      });
+  _sortEventsByValue(list, fn) {
+    const tripItemContent = new TripItemContent();
+    const tripDayInfo = new TripDayInfo();
+    const eventsList = new EventsList();
+    const sortedTripsList = list.slice().sort(fn);
 
-    renderElement(eventsContainer, eventItem.getElement(), `beforeend`);
+    this._sortedTrips = sortedTripsList;
+
+    renderElement(this._container, this._tripContent.getElement(), `beforeend`);
+    renderElement(this._tripContent.getElement(), tripItemContent.getElement(), `beforeend`);
+    renderElement(tripItemContent.getElement(), tripDayInfo.getElement(), `beforeend`);
+    renderElement(tripItemContent.getElement(), eventsList.getElement(), `beforeend`);
+
+    tripDayInfo.getElement().querySelector(`.day__counter`).textContent = ``;
+    tripDayInfo.getElement().querySelector(`.day__date`).textContent = ``;
+    tripDayInfo.getElement().querySelector(`.day__date`).value = ``;
+
+    sortedTripsList.forEach((trip) => {
+      this._renderEvent(eventsList.getElement(), trip);
+    });
   }
 
   _onSortListClick(evt) {
-    this._eventsList.getElement().innerHTML = ``;
-
-    let sortedEvents = this._trips;
+    this._clearAllTrips();
 
     switch (evt.target.dataset.sortType) {
       case `time`:
-        const sortedEventsByTime = this._trips.slice().sort((a, b) => a.eventTime.activityTime - b.eventTime.activityTime);
-        sortedEvents = sortedEventsByTime;
+        this._sortEventsByValue(this._trips, this._sortEventsByTime);
         break;
       case `price`:
-        const sortedEventsByPrice = this._trips.slice().sort((a, b) => a.cost - b.cost);
-        sortedEvents = sortedEventsByPrice;
+        this._sortEventsByValue(this._trips, this._sortEventsByPrice);
         break;
       case `default`:
-        sortedEvents = this._trips.slice();
+        this._renderEventsByDay();
         break;
     }
-
-    sortedEvents.forEach((tripMock) => this._renderEvent(tripMock));
   }
 }
 
