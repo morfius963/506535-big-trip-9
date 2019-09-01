@@ -1,4 +1,4 @@
-import {makeFirstSymUp, formattedDate} from '../utils.js';
+import {makeFirstSymUp} from '../utils.js';
 import AbstractComponent from './abstract-component.js';
 
 class EditEvent extends AbstractComponent {
@@ -109,12 +109,12 @@ class EditEvent extends AbstractComponent {
             <label class="visually-hidden" for="event-start-time-1">
               From
             </label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formattedDate(this._eventTimeFrom, `date`)} ${formattedDate(this._eventTimeFrom, `time`)}">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${this._eventTimeFrom.format(`DD/MM/YY`)} ${this._eventTimeFrom.format(`HH:mm`)}">
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">
               To
             </label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formattedDate(this._eventTimeTo, `date`)} ${formattedDate(this._eventTimeTo, `time`)}">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${this._eventTimeTo.format(`DD/MM/YY`)} ${this._eventTimeTo.format(`HH:mm`)}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -197,7 +197,11 @@ class EditEvent extends AbstractComponent {
   }
 
   _setCurrentTypeChecked() {
-    Array.from(this.getElement().querySelectorAll(`input[name="event-type"]`)).find((eventType) => eventType.value === this._typeValue).checked = true;
+    const foundElement = Array.from(this.getElement().querySelectorAll(`input[name="event-type"]`)).find((eventType) => eventType.value === this._typeValue);
+
+    if (foundElement) {
+      foundElement.checked = true;
+    }
   }
 
   _changeOptionsByType() {

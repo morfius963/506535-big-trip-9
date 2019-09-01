@@ -19,19 +19,7 @@ export const getFullEventPrice = (eventsList) => (
   }, 0)
 );
 
-export const formattedDate = (ts, value = `date`) => {
-  const date = moment(ts, `DD/MM/YY HH:mm`);
-
-  if (value === `date`) {
-    return date.format(`DD/MM/YY`);
-  }
-
-  return date.format(`HH:mm`);
-};
-
-export const formattedTimeDifference = (ts1, ts2) => {
-  const dateFrom = moment(ts1, `DD/MM/YY HH:mm`);
-  const dateTo = moment(ts2, `DD/MM/YY HH:mm`);
+export const formattedTimeDifference = (dateFrom, dateTo) => {
   const diff = dateTo.diff(dateFrom);
   const duration = moment.duration(diff);
 

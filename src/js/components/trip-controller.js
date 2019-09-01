@@ -56,6 +56,8 @@ class TripController {
   _renderBoard() {
     const currentSortValue = Array.from(this._sort.getElement().querySelectorAll(`.trip-sort__input`)).find((sortItem) => sortItem.checked).dataset.sortType;
 
+    this._clearAllTrips();
+
     switch (currentSortValue) {
       case `time`:
         this._sortEventsByValue(this._sortedTrips, this._sortEventsByTime);
@@ -64,7 +66,6 @@ class TripController {
         this._sortEventsByValue(this._sortedTrips, this._sortEventsByPrice);
         break;
       case `default`:
-        this._clearAllTrips();
         this._renderEventsByDay();
         break;
     }
@@ -112,7 +113,6 @@ class TripController {
     const sortedTripsList = list.slice().sort(fn);
 
     this._sortedTrips = sortedTripsList;
-    this._clearAllTrips();
 
     renderElement(this._container, this._tripContent.getElement(), `beforeend`);
     renderElement(this._tripContent.getElement(), tripItemContent.getElement(), `beforeend`);
@@ -129,6 +129,8 @@ class TripController {
   }
 
   _onSortListClick(evt) {
+    this._clearAllTrips();
+
     switch (evt.target.dataset.sortType) {
       case `time`:
         this._sortEventsByValue(this._trips, this._sortEventsByTime);
@@ -137,7 +139,6 @@ class TripController {
         this._sortEventsByValue(this._trips, this._sortEventsByPrice);
         break;
       case `default`:
-        this._clearAllTrips();
         this._renderEventsByDay();
         break;
     }

@@ -62,8 +62,8 @@ const getEventData = () => {
     description: generateRandomStr(RANDOM_STR, MOCK_DATA_COUNT.DESCRIPTION.MIN, MOCK_DATA_COUNT.DESCRIPTION.MAX),
 
     eventTime: {
-      from: moment(FROM_DATE).format(`DD/MM/YY HH:mm`),
-      to: moment(TO_DATE).format(`DD/MM/YY HH:mm`),
+      from: moment(FROM_DATE),
+      to: moment(TO_DATE),
       activityTime: TO_DATE - FROM_DATE
     },
 

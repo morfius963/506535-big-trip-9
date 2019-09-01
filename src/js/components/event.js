@@ -1,4 +1,4 @@
-import {makeFirstSymUp, formattedDate, formattedTimeDifference} from '../utils.js';
+import {makeFirstSymUp, formattedTimeDifference} from '../utils.js';
 import AbstractComponent from './abstract-component.js';
 
 class Event extends AbstractComponent {
@@ -25,9 +25,9 @@ class Event extends AbstractComponent {
 
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="${formattedDate(this._eventTimeFrom, `date`)}T${formattedDate(this._eventTimeFrom, `time`)}">${formattedDate(this._eventTimeFrom, `time`)}</time>
+            <time class="event__start-time" datetime="${this._eventTimeFrom.format(`DD/MM/YY`)}T${this._eventTimeFrom.format(`HH:mm`)}">${this._eventTimeFrom.format(`HH:mm`)}</time>
             &mdash;
-            <time class="event__end-time" datetime="${formattedDate(this._eventTimeTo, `date`)}T${formattedDate(this._eventTimeTo, `time`)}">${formattedDate(this._eventTimeTo, `time`)}</time>
+            <time class="event__end-time" datetime="${this._eventTimeTo.format(`DD/MM/YY`)}T${this._eventTimeTo.format(`HH:mm`)}">${this._eventTimeTo.format(`HH:mm`)}</time>
           </p>
           <p class="event__duration">${formattedTimeDifference(this._eventTimeFrom, this._eventTimeTo)}</p>
         </div>

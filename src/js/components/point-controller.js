@@ -20,7 +20,11 @@ class PointController {
     const onEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
         this._editEvent.resetForm();
-        this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
+
+        if (this._editEvent.getElement().parentNode === this._container) {
+          this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
+        }
+
         document.removeEventListener(`keydown`, onEscKeyDown);
       }
     };
@@ -62,8 +66,8 @@ class PointController {
     const pointImages = Array.from(this._editEvent.getElement().querySelectorAll(`.event__photo`)).map((img) => img.src);
     const pointDescription = this._editEvent.getElement().querySelector(`.event__destination-description`).textContent;
 
-    const timeFrom = formData.get(`event-start-time`);
-    const timeTo = formData.get(`event-end-time`);
+    const timeFrom = moment(formData.get(`event-start-time`), `DD/MM/YY HH:mm`);
+    const timeTo = moment(formData.get(`event-end-time`), `DD/MM/YY HH:mm`);
     const timeDiff = moment(timeTo, `DD/MM/YY HH:mm`).diff(moment(timeFrom, `DD/MM/YY HH:mm`));
     const activityTime = moment.duration(timeDiff).valueOf();
 
