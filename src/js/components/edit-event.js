@@ -179,6 +179,8 @@ class EditEvent extends AbstractComponent {
     this.getElement().querySelector(`.event__type-output`).textContent = `${makeFirstSymUp(this._typeValue)} ${this._typePlaceholder}`;
     this.getElement().querySelector(`.event__destination-description`).textContent = `${this._description}`;
     this.getElement().querySelector(`.event__favorite-checkbox`).checked = this._isFavorite;
+    this.getElement().querySelector(`#event-start-time-1 + input`).value = `${this._eventTimeFrom.format(`DD/MM/YY`)} ${this._eventTimeFrom.format(`HH:mm`)}`;
+    this.getElement().querySelector(`#event-end-time-1 + input`).value = `${this._eventTimeTo.format(`DD/MM/YY`)} ${this._eventTimeTo.format(`HH:mm`)}`;
 
     if (this._offers.length > 0) {
       this.getElement().querySelector(`.event__section--offers`).classList.remove(`visually-hidden`);
