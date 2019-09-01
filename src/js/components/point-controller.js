@@ -3,6 +3,9 @@ import EditEvent from './edit-event.js';
 import moment from 'moment';
 import {renderElement} from '../utils.js';
 import {tripTypesWithOptions, citiesWithDescription} from '../data.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+import 'flatpickr/dist/themes/light.css';
 
 class PointController {
   constructor(container, data, onDataChange, onChangeView) {
@@ -17,6 +20,24 @@ class PointController {
   }
 
   init() {
+    flatpickr(this._editEvent.getElement().querySelector(`#event-start-time-1`), {
+      altInput: true,
+      allowInput: true,
+      defaultDate: this._data.eventTime.from.format(`DD/MM/YY HH:mm`),
+      altFormat: `d/m/y H:i`,
+      dateFormat: `d/m/y H:i`,
+      enableTime: true
+    });
+
+    flatpickr(this._editEvent.getElement().querySelector(`#event-end-time-1`), {
+      altInput: true,
+      allowInput: true,
+      defaultDate: this._data.eventTime.to.format(`DD/MM/YY HH:mm`),
+      altFormat: `d/m/y H:i`,
+      dateFormat: `d/m/y H:i`,
+      enableTime: true
+    });
+
     const onEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
         this._editEvent.resetForm();

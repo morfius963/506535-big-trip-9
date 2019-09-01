@@ -5,7 +5,6 @@ import TripDayInfo from './trip-day-info.js';
 import EventsList from './events-list.js';
 import NoPoints from './no-points.js';
 import PointController from './point-controller.js';
-
 import moment from 'moment';
 import {renderElement, unrenderElement, getDateDiff} from '../utils.js';
 
