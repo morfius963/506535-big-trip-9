@@ -19,6 +19,7 @@ class PointController {
   init() {
     const onEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
+        this._editEvent.resetForm();
         this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
         document.removeEventListener(`keydown`, onEscKeyDown);
       }
@@ -36,6 +37,7 @@ class PointController {
     this._editEvent.getElement()
     .querySelector(`.event__rollup-btn`)
     .addEventListener(`click`, () => {
+      this._editEvent.resetForm();
       this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
       document.removeEventListener(`keydown`, onEscKeyDown);
     });
@@ -99,6 +101,7 @@ class PointController {
   setDefaultView() {
     if (this._container.contains(this._editEvent.getElement())) {
       this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
+      this._editEvent.resetForm();
     }
   }
 }

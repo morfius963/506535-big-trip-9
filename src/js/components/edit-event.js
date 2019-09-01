@@ -173,6 +173,29 @@ class EditEvent extends AbstractComponent {
     </li>`;
   }
 
+  resetForm() {
+    this.getElement().querySelector(`.event--edit`).reset();
+    this.getElement().querySelector(`.event__type-icon`).src = `img/icons/${this._typeValue}.png`;
+    this.getElement().querySelector(`.event__type-output`).textContent = `${makeFirstSymUp(this._typeValue)} ${this._typePlaceholder}`;
+    this.getElement().querySelector(`.event__destination-description`).textContent = `${this._description}`;
+    this.getElement().querySelector(`.event__favorite-checkbox`).checked = this._isFavorite;
+
+    if (this._offers.length > 0) {
+      this.getElement().querySelector(`.event__section--offers`).classList.remove(`visually-hidden`);
+      this.getElement().querySelector(`.event__available-offers`).innerHTML = ``;
+      this.getElement().querySelector(`.event__available-offers`).insertAdjacentHTML(`beforeend`, `${this._offers.map(({name, id, price, isChecked}) => `<div class="event__offer-selector">
+        <input class="event__offer-checkbox  visually-hidden" id="${id}-1" type="checkbox" name="${id}" ${isChecked ? `checked` : ``}>
+        <label class="event__offer-label" for="${id}-1">
+          <span class="event__offer-title">${name}</span>
+          &plus;
+          &euro;&nbsp;<span class="event__offer-price">${price}</span>
+        </label>
+      </div>`).join(``)}`);
+    } else if (!this.getElement().querySelector(`.event__section--offers`).classList.contains(`visually-hidden`)) {
+      this.getElement().querySelector(`.event__section--offers`).classList.add(`visually-hidden`);
+    }
+  }
+
   _setCurrentTypeChecked() {
     Array.from(this.getElement().querySelectorAll(`input[name="event-type"]`)).find((eventType) => eventType.value === this._typeValue).checked = true;
   }
