@@ -131,13 +131,11 @@ class TripController {
 
   _onChangeView() {
     const allPoints = this._container.querySelectorAll(`.trip-events__item`);
-    let elemToRemove = null;
 
     this._subscriptions.forEach((subscription) => subscription());
 
     if (allPoints.length > this._trips.length) {
-      elemToRemove = allPoints[0];
-      unrenderElement(elemToRemove);
+      unrenderElement(allPoints[0]);
       this._creatingPoint = null;
     }
   }
