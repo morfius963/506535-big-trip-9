@@ -1,14 +1,19 @@
-import Event from './event.js';
-import EditEvent from './edit-event.js';
+import Event from '../components/event.js';
+import EditEvent from '../components/edit-event.js';
 import moment from 'moment';
-import {renderElement} from '../utils.js';
+import {renderElement, unrenderElement} from '../utils.js';
 import {tripTypesWithOptions, citiesWithDescription} from '../data.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/themes/light.css';
 
+export const Mode = {
+  ADDING: `adding`,
+  DEFAULT: `default`,
+};
+
 class PointController {
-  constructor(container, data, onDataChange, onChangeView) {
+  constructor(container, data, mode, onChangeView, onDataChange) {
     this._container = container;
     this._data = data;
     this._onDataChange = onDataChange;
@@ -16,10 +21,18 @@ class PointController {
     this._event = new Event(data);
     this._editEvent = new EditEvent(data, tripTypesWithOptions, citiesWithDescription);
 
-    this.init();
+    this.init(mode);
   }
 
-  init() {
+  init(mode) {
+    let renderPosition = `beforeend`;
+    let currentView = this._event;
+
+    if (mode === Mode.ADDING) {
+      renderPosition = `afterbegin`;
+      currentView = this._editEvent;
+    }
+
     flatpickr(this._editEvent.getElement().querySelector(`#event-start-time-1`), {
       altInput: true,
       allowInput: true,
@@ -40,9 +53,8 @@ class PointController {
 
     const onEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
-        this._editEvent.resetForm();
-
         if (this._editEvent.getElement().parentNode === this._container) {
+          this._editEvent.resetForm();
           this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
         }
 
@@ -62,9 +74,16 @@ class PointController {
     this._editEvent.getElement()
     .querySelector(`.event__rollup-btn`)
     .addEventListener(`click`, () => {
-      this._editEvent.resetForm();
-      this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
-      document.removeEventListener(`keydown`, onEscKeyDown);
+      if (mode === Mode.ADDING) {
+        unrenderElement(this._editEvent.getElement());
+        this._editEvent.removeElement();
+        this._onDataChange(null, null);
+
+      } else if (mode === Mode.DEFAULT) {
+        this._editEvent.resetForm();
+        this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
+        document.removeEventListener(`keydown`, onEscKeyDown);
+      }
     });
 
     this._editEvent.getElement()
@@ -73,12 +92,26 @@ class PointController {
         evt.preventDefault();
 
         const entry = this._buildNewData();
-        this._onDataChange(entry, this._data);
+        this._onDataChange(entry, mode === Mode.DEFAULT ? this._data : null);
 
         document.removeEventListener(`keydown`, onEscKeyDown);
       });
 
-    renderElement(this._container, this._event.getElement(), `beforeend`);
+    this._editEvent.getElement()
+      .querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, (evt) => {
+        evt.preventDefault();
+
+        if (mode === Mode.ADDING) {
+          unrenderElement(this._editEvent.getElement());
+          this._editEvent.removeElement();
+          this._onDataChange(null, null);
+        } else if (mode === Mode.DEFAULT) {
+          this._onDataChange(null, this._data);
+        }
+      });
+
+    renderElement(this._container, currentView.getElement(), renderPosition);
   }
 
   _buildNewData() {

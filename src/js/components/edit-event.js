@@ -4,8 +4,8 @@ import AbstractComponent from './abstract-component.js';
 class EditEvent extends AbstractComponent {
   constructor({type: {value, placeholder}, city, eventTime: {from, to}, cost, currency, isFavorite, offers, description, images}, tripTypes, cities) {
     super();
-    this._typeValue = value;
-    this._typePlaceholder = placeholder;
+    this._typeValue = value === `` ? `trip` : value;
+    this._typePlaceholder = placeholder === `` ? `to` : placeholder;
     this._city = city;
     this._eventTimeFrom = from;
     this._eventTimeTo = to;
@@ -69,7 +69,7 @@ class EditEvent extends AbstractComponent {
                 </div>
 
                 <div class="event__type-item">
-                  <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" data-placeholder="to" checked>
+                  <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" data-placeholder="to">
                   <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
                 </div>
               </fieldset>
@@ -158,7 +158,7 @@ class EditEvent extends AbstractComponent {
             </div>
           </section>
 
-          <section class="event__section  event__section--destination">
+          <section class="event__section  event__section--destination ${this._isDestination() ? `` : `visually-hidden`}">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${this._description}</p>
 
@@ -196,6 +196,10 @@ class EditEvent extends AbstractComponent {
     } else if (!this.getElement().querySelector(`.event__section--offers`).classList.contains(`visually-hidden`)) {
       this.getElement().querySelector(`.event__section--offers`).classList.add(`visually-hidden`);
     }
+  }
+
+  _isDestination() {
+    return !!this._city;
   }
 
   _setCurrentTypeChecked() {
@@ -247,8 +251,10 @@ class EditEvent extends AbstractComponent {
 
         if (cityData) {
           this.getElement().querySelector(`.event__destination-description`).textContent = cityData.description;
+          this.getElement().querySelector(`.event__section--destination`).classList.remove(`visually-hidden`);
         } else {
           this.getElement().querySelector(`.event__destination-description`).textContent = ``;
+          this.getElement().querySelector(`.event__section--destination`).classList.add(`visually-hidden`);
         }
       });
   }

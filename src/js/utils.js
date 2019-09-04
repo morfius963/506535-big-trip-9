@@ -2,7 +2,7 @@ import moment from 'moment';
 
 export const getRandomNum = (min, max) => Math.floor(min + Math.random() * (max + 1 - min));
 
-export const makeFirstSymUp = (value) => `${value[0].toUpperCase()}${value.substring(1)}`;
+export const makeFirstSymUp = (value) => value === `` ? `` : `${value[0].toUpperCase()}${value.substring(1)}`;
 
 export const getRandomArray = (arr, min, max) => {
   const sortedArray = arr.slice().sort(() => Math.random() - 0.5);

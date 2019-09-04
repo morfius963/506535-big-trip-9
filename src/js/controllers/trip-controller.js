@@ -1,10 +1,10 @@
-import Sort from './sort.js';
-import TripContent from './trip-content.js';
-import TripItemContent from './trip-item-content.js';
-import TripDayInfo from './trip-day-info.js';
-import EventsList from './events-list.js';
-import NoPoints from './no-points.js';
-import PointController from './point-controller.js';
+import Sort from '../components/sort.js';
+import TripContent from '../components/trip-content.js';
+import TripItemContent from '../components/trip-item-content.js';
+import TripDayInfo from '../components/trip-day-info.js';
+import EventsList from '../components/events-list.js';
+import NoPoints from '../components/no-points.js';
+import PointController, {Mode as PointControllerMode} from './point-controller.js';
 import moment from 'moment';
 import {renderElement, unrenderElement, getDateDiff} from '../utils.js';
 
@@ -17,8 +17,9 @@ class TripController {
     this._noPoints = new NoPoints();
 
     this._sortedTrips = this._trips;
-
     this._subscriptions = [];
+    this._creatingPoint = null;
+
     this._onDataChange = this._onDataChange.bind(this);
     this._onChangeView = this._onChangeView.bind(this);
 
@@ -37,25 +38,121 @@ class TripController {
     this._sort.getElement().addEventListener(`change`, (evt) => this._onSortListClick(evt));
   }
 
+  hide() {
+    this._container.classList.add(`visually-hidden`);
+  }
+
+  show() {
+    this._container.classList.remove(`visually-hidden`);
+  }
+
+  createTask() {
+    let newPointContainer = this._container.querySelector(`.trip-events__list`);
+
+    if (!newPointContainer) {
+      this._createNewDay();
+      newPointContainer = this._container.querySelector(`.trip-events__list`);
+    }
+
+    if (this._creatingPoint) {
+      return;
+    }
+
+    const defaultPoint = {
+      type: {
+        value: ``,
+        placeholder: ``
+      },
+      city: ``,
+      images: new Array(6).fill(``).map(() => `${`http://picsum.photos/300/150?r=${Math.random()}`}`),
+      description: ``,
+      eventTime: {
+        from: moment(Date.now()),
+        to: moment(Date.now()),
+        activityTime: 0
+      },
+      cost: 0,
+      currency: `&euro;`,
+      isFavorite: false,
+      offers: []
+    };
+
+    this._onChangeView();
+    this._creatingPoint = new PointController(newPointContainer, defaultPoint, PointControllerMode.ADDING, this._onChangeView, (...args) => {
+      this._creatingPoint = null;
+      this._onDataChange(...args);
+    });
+  }
+
+  _createNewDay() {
+    this._tripContent = new TripContent();
+    const mainContainer = document.querySelector(`.trip-events`);
+    const tripItemContent = new TripItemContent();
+    const tripDayInfo = new TripDayInfo();
+    const eventsList = new EventsList();
+
+    mainContainer.innerHTML = ``;
+    renderElement(mainContainer, this._tripContent.getElement(), `beforeend`);
+    renderElement(this._tripContent.getElement(), tripItemContent.getElement(), `beforeend`);
+    renderElement(tripItemContent.getElement(), tripDayInfo.getElement(), `beforeend`);
+    renderElement(tripItemContent.getElement(), eventsList.getElement(), `beforeend`);
+  }
+
   _renderEvent(eventsContainer, eventData) {
-    const pointController = new PointController(eventsContainer, eventData, this._onDataChange, this._onChangeView);
+    const pointController = new PointController(eventsContainer, eventData, PointControllerMode.DEFAULT, this._onChangeView, this._onDataChange);
     this._subscriptions.push(pointController.setDefaultView.bind(pointController));
   }
 
   _onDataChange(newData, oldData) {
-    this._trips[this._trips.findIndex((it) => it === oldData)] = newData;
-    this._sortedTrips[this._sortedTrips.findIndex((it) => it === oldData)] = newData;
+    const tripsIndex = this._trips.findIndex((it) => it === oldData);
+    const sortedTripsIndex = this._trips.findIndex((it) => it === oldData);
+
+    if (newData === null && oldData === null) {
+      this._creatingPoint = null;
+      return;
+
+    } else if (newData === null) {
+      this._trips = [...this._trips.slice(0, tripsIndex), ...this._trips.slice(tripsIndex + 1)];
+      this._sortedTrips = [...this._sortedTrips.slice(0, sortedTripsIndex), ...this._sortedTrips.slice(sortedTripsIndex + 1)];
+      this._creatingPoint = null;
+
+    } else if (oldData === null) {
+      this._trips = [newData, ...this._trips];
+      this._sortedTrips = [newData, ...this._sortedTrips];
+      this._creatingTask = null;
+
+    } else {
+      this._trips[tripsIndex] = newData;
+      this._sortedTrips[sortedTripsIndex] = newData;
+    }
+
     this._renderBoard();
   }
 
   _onChangeView() {
+    const allPoints = this._container.querySelectorAll(`.trip-events__item`);
+    let elemToRemove = null;
+
     this._subscriptions.forEach((subscription) => subscription());
+
+    if (allPoints.length > this._trips.length) {
+      elemToRemove = allPoints[0];
+      unrenderElement(elemToRemove);
+      this._creatingPoint = null;
+    }
   }
 
   _renderBoard() {
+    if (this._trips.length === 0) {
+      this._container.innerHTML = ``;
+      renderElement(this._container, this._noPoints.getElement(), `beforeend`);
+      return;
+    }
+
     const currentSortValue = Array.from(this._sort.getElement().querySelectorAll(`.trip-sort__input`)).find((sortItem) => sortItem.checked).dataset.sortType;
 
     this._clearAllTrips();
+    this._subscriptions.length = 0;
 
     switch (currentSortValue) {
       case `time`:
@@ -78,13 +175,13 @@ class TripController {
   _renderEventsByDay() {
     const fromDates = this._trips.map(({eventTime: {from}}) => from).sort((a, b) => getDateDiff(a, b));
     const formattedDates = fromDates.map((date) => moment(date, `DD/MM/YY HH:mm`).format(`MMM DD`));
-    const uniqueFromDates = [...new Set(formattedDates)];
+    const uniqueFormattedDates = [...new Set(formattedDates)];
 
     this._sortedTrips = this._trips;
 
     renderElement(this._container, this._tripContent.getElement(), `beforeend`);
 
-    uniqueFromDates.forEach((eventDate, i) => {
+    uniqueFormattedDates.forEach((eventDate, i) => {
       const tripItemContent = new TripItemContent();
       const tripDayInfo = new TripDayInfo();
       const eventsList = new EventsList();
