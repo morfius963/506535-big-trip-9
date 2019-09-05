@@ -5,6 +5,7 @@ import TripDayInfo from '../components/trip-day-info.js';
 import EventsList from '../components/events-list.js';
 import NoPoints from '../components/no-points.js';
 import PointController, {Mode as PointControllerMode} from './point-controller.js';
+import PageDataController from './page-data-controller.js';
 import moment from 'moment';
 import {renderElement, unrenderElement, getDateDiff} from '../utils.js';
 
@@ -15,13 +16,14 @@ class TripController {
     this._sort = new Sort();
     this._tripContent = new TripContent();
     this._noPoints = new NoPoints();
+    this._pageDataController = new PageDataController();
 
     this._sortedTrips = this._trips;
     this._subscriptions = [];
     this._creatingPoint = null;
 
     this._onDataChange = this._onDataChange.bind(this);
-    this._onChangeView = this._onChangeView.bind(this);
+    this.onChangeView = this.onChangeView.bind(this);
 
     this._sortEventsByTime = (a, b) => b.eventTime.activityTime - a.eventTime.activityTime;
     this._sortEventsByPrice = (a, b) => b.cost - a.cost;
@@ -77,8 +79,8 @@ class TripController {
       offers: []
     };
 
-    this._onChangeView();
-    this._creatingPoint = new PointController(newPointContainer, defaultPoint, PointControllerMode.ADDING, this._onChangeView, (...args) => {
+    this.onChangeView();
+    this._creatingPoint = new PointController(newPointContainer, defaultPoint, PointControllerMode.ADDING, this.onChangeView, (...args) => {
       this._creatingPoint = null;
       this._onDataChange(...args);
     });
@@ -99,7 +101,7 @@ class TripController {
   }
 
   _renderEvent(eventsContainer, eventData) {
-    const pointController = new PointController(eventsContainer, eventData, PointControllerMode.DEFAULT, this._onChangeView, this._onDataChange);
+    const pointController = new PointController(eventsContainer, eventData, PointControllerMode.DEFAULT, this.onChangeView, this._onDataChange);
     this._subscriptions.push(pointController.setDefaultView.bind(pointController));
   }
 
@@ -126,10 +128,11 @@ class TripController {
       this._sortedTrips[sortedTripsIndex] = newData;
     }
 
+    this._pageDataController.updatePage(this._trips);
     this._renderBoard();
   }
 
-  _onChangeView() {
+  onChangeView() {
     const allPoints = this._container.querySelectorAll(`.trip-events__item`);
 
     this._subscriptions.forEach((subscription) => subscription());
