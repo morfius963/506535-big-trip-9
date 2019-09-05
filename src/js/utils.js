@@ -13,9 +13,9 @@ export const getRandomArray = (arr, min, max) => {
 
 export const getFullEventPrice = (eventsList) => (
   eventsList.reduce((acc, {cost, offers}) => {
-    const offerFullPrice = offers.reduce((accum, {price, isChecked}) => (isChecked ? accum + price : accum), 0);
+    const offerFullPrice = offers.reduce((accum, {price, isChecked}) => (isChecked ? accum + Number(price) : accum), 0);
 
-    return acc + cost + offerFullPrice;
+    return acc + Number(cost) + offerFullPrice;
   }, 0)
 );
 

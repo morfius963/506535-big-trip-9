@@ -87,7 +87,7 @@ const getFilterData = (value) => ({
   isChecked: value === `everything` ? true : false
 });
 
-const getTripInfoData = (trips) => trips.length > 0
+export const getTripInfoData = (trips) => trips.length > 0
   ? ({
     cities: trips.map(({city}) => city),
     date: {

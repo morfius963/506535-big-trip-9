@@ -55,6 +55,7 @@ menu.getElement().addEventListener(`click`, (evt) => {
       tripController.show();
       break;
     case `stats`:
+      tripController.onChangeView();
       tripController.hide();
       statistics.show();
       break;
