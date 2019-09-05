@@ -34,19 +34,15 @@ class PointController {
     }
 
     flatpickr(this._editEvent.getElement().querySelector(`#event-start-time-1`), {
-      altInput: true,
-      allowInput: true,
+      allowInput: false,
       defaultDate: this._data.eventTime.from.format(`DD/MM/YY HH:mm`),
-      altFormat: `d/m/y H:i`,
       dateFormat: `d/m/y H:i`,
       enableTime: true
     });
 
     flatpickr(this._editEvent.getElement().querySelector(`#event-end-time-1`), {
-      altInput: true,
-      allowInput: true,
+      allowInput: false,
       defaultDate: this._data.eventTime.to.format(`DD/MM/YY HH:mm`),
-      altFormat: `d/m/y H:i`,
       dateFormat: `d/m/y H:i`,
       enableTime: true
     });
