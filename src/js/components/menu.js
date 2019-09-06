@@ -9,7 +9,7 @@ class Menu extends AbstractComponent {
 
   getTemplate() {
     return `<nav class="trip-controls__trip-tabs  trip-tabs">
-      ${this._menuValue.map(({name, isActive}) => `<a class="trip-tabs__btn ${isActive ? `trip-tabs__btn--active` : ``}" href="#">${makeFirstSymUp(name)}</a>`).join(``)}
+      ${this._menuValue.map(({name, isActive}) => `<a class="trip-tabs__btn ${isActive ? `trip-tabs__btn--active` : ``}" href="#" data-switch="${name}">${makeFirstSymUp(name)}</a>`).join(``)}
     </nav>`;
   }
 }
