@@ -12,7 +12,7 @@ import {renderElement, unrenderElement, getDateDiff} from "../utils.js";
 class TripController {
   constructor(container, trips, onDataChange, isFiltered = false) {
     this._container = container;
-    this._trips = trips.slice().sort((a, b) => getDateDiff(a.eventTime.from, b.eventTime.from));
+    this._trips = this._sortByDefault(trips);
     this._onDataChangeMain = onDataChange;
     this._isFiltered = isFiltered;
 
@@ -130,6 +130,7 @@ class TripController {
     } else if (oldData === null) {
       this._trips = [newData, ...this._trips];
       this._sortedTrips = [newData, ...this._sortedTrips];
+      this._trips = this._sortByDefault(this._trips);
 
     } else {
       this._trips[tripsIndex] = newData;
@@ -138,7 +139,7 @@ class TripController {
 
     this._creatingPoint = null;
     this._onDataChangeMain(this._sortedTrips);
-    this._pageDataController.updatePage(this._sortedTrips);
+    this._pageDataController.updatePage(this._trips);
     this._renderBoard();
   }
 
@@ -248,6 +249,10 @@ class TripController {
         this._renderEventsByDay();
         break;
     }
+  }
+
+  _sortByDefault(trips) {
+    return trips.slice().sort((a, b) => getDateDiff(a.eventTime.from, b.eventTime.from));
   }
 }
 
