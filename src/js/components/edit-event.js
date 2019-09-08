@@ -1,5 +1,5 @@
-import {makeFirstSymUp} from '../utils.js';
-import AbstractComponent from './abstract-component.js';
+import {makeFirstSymUp} from "../utils.js";
+import AbstractComponent from "./abstract-component.js";
 
 class EditEvent extends AbstractComponent {
   constructor({type: {value, placeholder}, city, eventTime: {from, to}, cost, currency, isFavorite, offers, description, images}, tripTypes, cities) {
@@ -9,7 +9,7 @@ class EditEvent extends AbstractComponent {
     this._city = city;
     this._eventTimeFrom = from;
     this._eventTimeTo = to;
-    this._cost = cost;
+    this._cost = Number(cost);
     this._currency = currency;
     this._isFavorite = isFavorite;
     this._offers = offers;

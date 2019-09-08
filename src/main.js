@@ -1,14 +1,10 @@
-import Menu from './js/components/menu.js';
-import Filters from './js/components/filters.js';
-import TripInfo from './js/components/trip-info.js';
-import TripController from './js/controllers/trip-controller.js';
-import Statistics from './js/components/statistics.js';
-import {eventsData} from './js/data.js';
-import {menuData} from './js/data.js';
-import {filtersData} from './js/data.js';
-import {tripInfoData} from './js/data.js';
-import {getFullEventPrice} from './js/utils.js';
-import {renderElement} from './js/utils.js';
+import Menu from "./js/components/menu.js";
+import Filters from "./js/components/filters.js";
+import TripInfo from "./js/components/trip-info.js";
+import TripController from "./js/controllers/trip-controller.js";
+import Statistics from "./js/components/statistics.js";
+import {eventsData, menuData, filtersData, tripInfoData} from "./js/data.js";
+import {getFullEventPrice, renderElement} from "./js/utils.js";
 
 const tripInfoContainer = document.querySelector(`.trip-main__trip-info`);
 const menuContainer = document.querySelector(`.trip-main__visually-hidden-menu`);
@@ -19,8 +15,14 @@ const pageBodyContainer = document.querySelector(`.page-main .page-body__contain
 const tripInfo = new TripInfo(tripInfoData);
 const menu = new Menu(menuData);
 const filters = new Filters(filtersData);
-const tripController = new TripController(eventsContent, eventsData);
 const statistics = new Statistics();
+
+const onDataChange = (trips) => {
+  tripsMock = trips;
+};
+
+let tripsMock = eventsData;
+let tripController = new TripController(eventsContent, tripsMock, onDataChange);
 
 statistics.hide();
 
@@ -28,10 +30,10 @@ renderElement(tripInfoContainer, tripInfo.getElement(), `afterbegin`);
 renderElement(menuContainer, menu.getElement(), `afterend`);
 renderElement(filterContainer, filters.getElement(), `afterend`);
 renderElement(pageBodyContainer, statistics.getElement(), `beforeend`);
-tripController.init();
+tripController.init(tripsMock);
 
 const fullTripPriceElem = document.querySelector(`.trip-info__cost-value`);
-fullTripPriceElem.textContent = getFullEventPrice(eventsData);
+fullTripPriceElem.textContent = getFullEventPrice(tripsMock);
 
 menu.getElement().addEventListener(`click`, (evt) => {
   evt.preventDefault();
@@ -69,4 +71,28 @@ addNewPointBtn.addEventListener(`click`, () => {
   statistics.hide();
   tripController.show();
   tripController.createTask();
+});
+
+const tripFilters = document.querySelector(`.trip-filters`);
+tripFilters.addEventListener(`change`, (evt) => {
+  const isFiltered = evt.target.value !== `everything`;
+  let tripsData = tripsMock;
+
+  switch (evt.target.value) {
+    case `everything`:
+      tripsData = tripsMock;
+      addNewPointBtn.disabled = false;
+      break;
+    case `future`:
+      tripsData = tripsMock.filter((trip) => trip.eventTime.from.isAfter(new Date(Date.now())));
+      addNewPointBtn.disabled = true;
+      break;
+    case `past`:
+      tripsData = tripsMock.filter((trip) => trip.eventTime.from.isBefore(new Date(Date.now())));
+      addNewPointBtn.disabled = true;
+      break;
+  }
+
+  tripController = new TripController(eventsContent, tripsData, onDataChange, isFiltered);
+  tripController.init();
 });
