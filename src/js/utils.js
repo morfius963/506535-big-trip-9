@@ -19,7 +19,7 @@ export const getFullEventPrice = (eventsList) => (
   }, 0)
 );
 
-export const formattedTimeDifference = (dateFrom, dateTo) => {
+export const getFormattedTimeDifference = (dateFrom, dateTo) => {
   const diff = dateTo.diff(dateFrom);
   const duration = moment.duration(diff);
 

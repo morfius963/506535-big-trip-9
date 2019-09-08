@@ -4,7 +4,7 @@ import AbstractComponent from "./abstract-component.js";
 class EditEvent extends AbstractComponent {
   constructor({type: {value, placeholder}, city, eventTime: {from, to}, cost, currency, isFavorite, offers, description, images}, tripTypes, cities) {
     super();
-    this._typeValue = value === `` ? `trip` : value;
+    this._typeValue = value === `` ? `taxi` : value;
     this._typePlaceholder = placeholder === `` ? `to` : placeholder;
     this._city = city;
     this._eventTimeFrom = from;
@@ -44,7 +44,7 @@ class EditEvent extends AbstractComponent {
                 </div>
 
                 <div class="event__type-item">
-                  <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus" data-placeholder="to">
+                  <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus" data-placeholder="to" checked>
                   <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
                 </div>
 
