@@ -93,7 +93,7 @@ class Statistics extends AbstractComponent {
         scales: {
           yAxes: [{
             barPercentage: 0.9,
-            maxBarThickness: 55,
+            maxBarThickness: 60,
             gridLines: {
               display: false,
               drawBorder: false

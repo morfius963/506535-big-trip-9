@@ -21,6 +21,12 @@ const onDataChange = (trips) => {
   tripsMock = trips;
 };
 
+const setDisabledValue = (elements, value) => {
+  elements.forEach((elem) => {
+    elem.disabled = value;
+  });
+};
+
 let tripsMock = eventsData;
 let tripController = new TripController(eventsContent, tripsMock, onDataChange);
 
@@ -55,11 +61,13 @@ menu.getElement().addEventListener(`click`, (evt) => {
     case `table`:
       statistics.hide();
       tripController.show();
+      setDisabledValue(filters.getElement().querySelectorAll(`.trip-filters__filter-input`), false);
       break;
     case `stats`:
       tripController.onChangeView();
       tripController.hide();
       statistics.show(tripsMock);
+      setDisabledValue(filters.getElement().querySelectorAll(`.trip-filters__filter-input`), true);
       break;
   }
 });
@@ -71,6 +79,7 @@ addNewPointBtn.addEventListener(`click`, () => {
   statistics.hide();
   tripController.show();
   tripController.createTask();
+  setDisabledValue(filters.getElement().querySelectorAll(`.trip-filters__filter-input`), false);
 });
 
 const tripFilters = document.querySelector(`.trip-filters`);
