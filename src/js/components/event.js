@@ -1,15 +1,15 @@
-import {makeFirstSymUp, formattedTimeDifference} from '../utils.js';
-import AbstractComponent from './abstract-component.js';
+import {makeFirstSymUp, getFormattedTimeDifference} from "../utils.js";
+import AbstractComponent from "./abstract-component.js";
 
 class Event extends AbstractComponent {
   constructor({type: {value, placeholder}, city, eventTime: {from, to}, cost, currency, offers}) {
     super();
-    this._typeValue = value;
-    this._typePlaceholder = placeholder;
+    this._typeValue = value === `` ? `taxi` : value;
+    this._typePlaceholder = placeholder === `` ? `to` : placeholder;
     this._city = city;
     this._eventTimeFrom = from;
     this._eventTimeTo = to;
-    this._cost = cost;
+    this._cost = Number(cost);
     this._currency = currency;
     this._offers = offers;
     this._MAX_OFFERS_COUNT = 3;
@@ -29,7 +29,7 @@ class Event extends AbstractComponent {
             &mdash;
             <time class="event__end-time" datetime="${this._eventTimeTo.format(`DD/MM/YY`)}T${this._eventTimeTo.format(`HH:mm`)}">${this._eventTimeTo.format(`HH:mm`)}</time>
           </p>
-          <p class="event__duration">${formattedTimeDifference(this._eventTimeFrom, this._eventTimeTo)}</p>
+          <p class="event__duration">${getFormattedTimeDifference(this._eventTimeFrom, this._eventTimeTo)}</p>
         </div>
 
         <p class="event__price">

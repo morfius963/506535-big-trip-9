@@ -1,5 +1,5 @@
 import {renderElement, getFullEventPrice} from "../utils";
-import {getTripInfoData} from '../data.js';
+import {getTripInfoData} from "../data.js";
 import TripInfo from "../components/trip-info.js";
 
 class PageDataController {

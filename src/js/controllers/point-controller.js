@@ -1,11 +1,11 @@
-import Event from '../components/event.js';
-import EditEvent from '../components/edit-event.js';
-import moment from 'moment';
-import {renderElement, unrenderElement} from '../utils.js';
-import {tripTypesWithOptions, citiesWithDescription} from '../data.js';
-import flatpickr from 'flatpickr';
-import 'flatpickr/dist/flatpickr.min.css';
-import 'flatpickr/dist/themes/light.css';
+import Event from "../components/event.js";
+import EditEvent from "../components/edit-event.js";
+import {renderElement, unrenderElement} from "../utils.js";
+import {tripTypesWithOptions, citiesWithDescription} from "../data.js";
+import moment from "moment";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
+import "flatpickr/dist/themes/light.css";
 
 export const Mode = {
   ADDING: `adding`,
@@ -37,14 +37,24 @@ class PointController {
       allowInput: false,
       defaultDate: this._data.eventTime.from.format(`DD/MM/YY HH:mm`),
       dateFormat: `d/m/y H:i`,
-      enableTime: true
+      enableTime: true,
+      onChange(selectedDates) {
+        if (moment(selectedDates[0]).valueOf() > moment(document.querySelector(`#event-end-time-1`).value, `DD/MM/YY HH:mm`).valueOf()) {
+          document.querySelector(`#event-end-time-1`).value = moment(selectedDates[0]).format(`DD/MM/YY HH:mm`);
+        }
+      }
     });
 
     flatpickr(this._editEvent.getElement().querySelector(`#event-end-time-1`), {
       allowInput: false,
       defaultDate: this._data.eventTime.to.format(`DD/MM/YY HH:mm`),
       dateFormat: `d/m/y H:i`,
-      enableTime: true
+      enableTime: true,
+      onChange(selectedDates) {
+        if (moment(selectedDates[0]).valueOf() < moment(document.querySelector(`#event-start-time-1`).value, `DD/MM/YY HH:mm`).valueOf()) {
+          document.querySelector(`#event-start-time-1`).value = moment(selectedDates[0]).format(`DD/MM/YY HH:mm`);
+        }
+      }
     });
 
     const onEscKeyDown = (evt) => {

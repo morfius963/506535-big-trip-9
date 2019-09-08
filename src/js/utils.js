@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from "moment";
 
 export const getRandomNum = (min, max) => Math.floor(min + Math.random() * (max + 1 - min));
 
@@ -19,7 +19,7 @@ export const getFullEventPrice = (eventsList) => (
   }, 0)
 );
 
-export const formattedTimeDifference = (dateFrom, dateTo) => {
+export const getFormattedTimeDifference = (dateFrom, dateTo) => {
   const diff = dateTo.diff(dateFrom);
   const duration = moment.duration(diff);
 

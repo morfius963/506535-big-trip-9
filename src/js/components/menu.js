@@ -1,5 +1,5 @@
-import {makeFirstSymUp} from '../utils.js';
-import AbstractComponent from './abstract-component.js';
+import {makeFirstSymUp} from "../utils.js";
+import AbstractComponent from "./abstract-component.js";
 
 class Menu extends AbstractComponent {
   constructor(menuValue) {

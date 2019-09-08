@@ -1,24 +1,26 @@
-import Sort from '../components/sort.js';
-import TripContent from '../components/trip-content.js';
-import TripItemContent from '../components/trip-item-content.js';
-import TripDayInfo from '../components/trip-day-info.js';
-import EventsList from '../components/events-list.js';
-import NoPoints from '../components/no-points.js';
-import PointController, {Mode as PointControllerMode} from './point-controller.js';
-import PageDataController from './page-data-controller.js';
-import moment from 'moment';
-import {renderElement, unrenderElement, getDateDiff} from '../utils.js';
+import Sort from "../components/sort.js";
+import TripContent from "../components/trip-content.js";
+import TripItemContent from "../components/trip-item-content.js";
+import TripDayInfo from "../components/trip-day-info.js";
+import EventsList from "../components/events-list.js";
+import NoPoints from "../components/no-points.js";
+import PointController, {Mode as PointControllerMode} from "./point-controller.js";
+import PageDataController from "./page-data-controller.js";
+import moment from "moment";
+import {renderElement, unrenderElement, getDateDiff} from "../utils.js";
 
 class TripController {
-  constructor(container, trips) {
+  constructor(container, trips, onDataChange, isFiltered = false) {
     this._container = container;
-    this._trips = trips.slice().sort((a, b) => getDateDiff(a.eventTime.from, b.eventTime.from));
+    this._trips = this._sortByDefault(trips);
+    this._onDataChangeMain = onDataChange;
+    this._isFiltered = isFiltered;
+
     this._sort = new Sort();
     this._tripContent = new TripContent();
     this._noPoints = new NoPoints();
     this._pageDataController = new PageDataController();
 
-    this._sortedTrips = this._trips;
     this._subscriptions = [];
     this._creatingPoint = null;
 
@@ -30,8 +32,15 @@ class TripController {
   }
 
   init() {
+    this._container.innerHTML = ``;
+
     if (this._trips.length === 0) {
       renderElement(this._container, this._noPoints.getElement(), `beforeend`);
+
+      if (this._isFiltered) {
+        this._noPoints.getElement().textContent = `No Results`;
+      }
+
       return;
     }
 
@@ -107,27 +116,25 @@ class TripController {
 
   _onDataChange(newData, oldData) {
     const tripsIndex = this._trips.findIndex((it) => it === oldData);
-    const sortedTripsIndex = this._trips.findIndex((it) => it === oldData);
 
     if (newData === null && oldData === null) {
       this._creatingPoint = null;
+      this._renderBoard();
       return;
 
     } else if (newData === null) {
       this._trips = [...this._trips.slice(0, tripsIndex), ...this._trips.slice(tripsIndex + 1)];
-      this._sortedTrips = [...this._sortedTrips.slice(0, sortedTripsIndex), ...this._sortedTrips.slice(sortedTripsIndex + 1)];
-      this._creatingPoint = null;
 
     } else if (oldData === null) {
       this._trips = [newData, ...this._trips];
-      this._sortedTrips = [newData, ...this._sortedTrips];
-      this._creatingTask = null;
 
     } else {
       this._trips[tripsIndex] = newData;
-      this._sortedTrips[sortedTripsIndex] = newData;
     }
 
+    this._creatingPoint = null;
+    this._trips = this._sortByDefault(this._trips);
+    this._onDataChangeMain(this._trips);
     this._pageDataController.updatePage(this._trips);
     this._renderBoard();
   }
@@ -154,13 +161,14 @@ class TripController {
 
     this._clearAllTrips();
     this._subscriptions.length = 0;
+    renderElement(this._container, this._sort.getElement(), `beforeend`);
 
     switch (currentSortValue) {
       case `time`:
-        this._sortEventsByValue(this._sortedTrips, this._sortEventsByTime);
+        this._sortEventsByValue(this._trips, this._sortEventsByTime);
         break;
       case `price`:
-        this._sortEventsByValue(this._sortedTrips, this._sortEventsByPrice);
+        this._sortEventsByValue(this._trips, this._sortEventsByPrice);
         break;
       case `default`:
         this._renderEventsByDay();
@@ -177,8 +185,6 @@ class TripController {
     const fromDates = this._trips.map(({eventTime: {from}}) => from).sort((a, b) => getDateDiff(a, b));
     const formattedDates = fromDates.map((date) => moment(date, `DD/MM/YY HH:mm`).format(`MMM DD`));
     const uniqueFormattedDates = [...new Set(formattedDates)];
-
-    this._sortedTrips = this._trips;
 
     renderElement(this._container, this._tripContent.getElement(), `beforeend`);
 
@@ -209,8 +215,6 @@ class TripController {
     const eventsList = new EventsList();
     const sortedTripsList = list.slice().sort(fn);
 
-    this._sortedTrips = sortedTripsList;
-
     renderElement(this._container, this._tripContent.getElement(), `beforeend`);
     renderElement(this._tripContent.getElement(), tripItemContent.getElement(), `beforeend`);
     renderElement(tripItemContent.getElement(), tripDayInfo.getElement(), `beforeend`);
@@ -239,6 +243,10 @@ class TripController {
         this._renderEventsByDay();
         break;
     }
+  }
+
+  _sortByDefault(trips) {
+    return trips.slice().sort((a, b) => getDateDiff(a.eventTime.from, b.eventTime.from));
   }
 }
 
