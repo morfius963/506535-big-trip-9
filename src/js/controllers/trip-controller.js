@@ -121,6 +121,7 @@ class TripController {
 
     if (newData === null && oldData === null) {
       this._creatingPoint = null;
+      this._renderBoard();
       return;
 
     } else if (newData === null) {
@@ -165,6 +166,7 @@ class TripController {
 
     this._clearAllTrips();
     this._subscriptions.length = 0;
+    renderElement(this._container, this._sort.getElement(), `beforeend`);
 
     switch (currentSortValue) {
       case `time`:
