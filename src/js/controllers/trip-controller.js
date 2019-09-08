@@ -21,7 +21,6 @@ class TripController {
     this._noPoints = new NoPoints();
     this._pageDataController = new PageDataController();
 
-    this._sortedTrips = this._trips;
     this._subscriptions = [];
     this._creatingPoint = null;
 
@@ -117,7 +116,6 @@ class TripController {
 
   _onDataChange(newData, oldData) {
     const tripsIndex = this._trips.findIndex((it) => it === oldData);
-    const sortedTripsIndex = this._trips.findIndex((it) => it === oldData);
 
     if (newData === null && oldData === null) {
       this._creatingPoint = null;
@@ -126,20 +124,17 @@ class TripController {
 
     } else if (newData === null) {
       this._trips = [...this._trips.slice(0, tripsIndex), ...this._trips.slice(tripsIndex + 1)];
-      this._sortedTrips = [...this._sortedTrips.slice(0, sortedTripsIndex), ...this._sortedTrips.slice(sortedTripsIndex + 1)];
 
     } else if (oldData === null) {
       this._trips = [newData, ...this._trips];
-      this._sortedTrips = [newData, ...this._sortedTrips];
-      this._trips = this._sortByDefault(this._trips);
 
     } else {
       this._trips[tripsIndex] = newData;
-      this._sortedTrips[sortedTripsIndex] = newData;
     }
 
     this._creatingPoint = null;
-    this._onDataChangeMain(this._sortedTrips);
+    this._trips = this._sortByDefault(this._trips);
+    this._onDataChangeMain(this._trips);
     this._pageDataController.updatePage(this._trips);
     this._renderBoard();
   }
@@ -170,10 +165,10 @@ class TripController {
 
     switch (currentSortValue) {
       case `time`:
-        this._sortEventsByValue(this._sortedTrips, this._sortEventsByTime);
+        this._sortEventsByValue(this._trips, this._sortEventsByTime);
         break;
       case `price`:
-        this._sortEventsByValue(this._sortedTrips, this._sortEventsByPrice);
+        this._sortEventsByValue(this._trips, this._sortEventsByPrice);
         break;
       case `default`:
         this._renderEventsByDay();
@@ -190,7 +185,6 @@ class TripController {
     const fromDates = this._trips.map(({eventTime: {from}}) => from).sort((a, b) => getDateDiff(a, b));
     const formattedDates = fromDates.map((date) => moment(date, `DD/MM/YY HH:mm`).format(`MMM DD`));
     const uniqueFormattedDates = [...new Set(formattedDates)];
-    this._sortedTrips = this._trips;
 
     renderElement(this._container, this._tripContent.getElement(), `beforeend`);
 
@@ -220,8 +214,6 @@ class TripController {
     const tripDayInfo = new TripDayInfo();
     const eventsList = new EventsList();
     const sortedTripsList = list.slice().sort(fn);
-
-    this._sortedTrips = sortedTripsList;
 
     renderElement(this._container, this._tripContent.getElement(), `beforeend`);
     renderElement(this._tripContent.getElement(), tripItemContent.getElement(), `beforeend`);
