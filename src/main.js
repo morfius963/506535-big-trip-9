@@ -59,7 +59,7 @@ menu.getElement().addEventListener(`click`, (evt) => {
     case `stats`:
       tripController.onChangeView();
       tripController.hide();
-      statistics.show();
+      statistics.show(tripsMock);
       break;
   }
 });
