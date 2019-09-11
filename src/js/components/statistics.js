@@ -4,6 +4,18 @@ import Chart from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
 const MIN_HOURS_COUNT = 1;
+const TypeSmiles = new Map([
+  [`taxi`, `🚖`],
+  [`bus`, `🚌`],
+  [`train`, `🚉`],
+  [`ship`, `🚢`],
+  [`transport`, `🚋`],
+  [`drive`, `🚗`],
+  [`flight`, `✈️`],
+  [`restaurant`, `🍗`],
+  [`check-in`, `🏩`],
+  [`sightseeing`, `🏛️`]
+]);
 
 class Statistics extends AbstractComponent {
   constructor() {
@@ -135,6 +147,7 @@ class Statistics extends AbstractComponent {
 
   _createMoneyChart() {
     const moneyChartLabels = [...new Set(this._trips.map(({type: {value}}) => value.toUpperCase()))];
+    const labelsWithSmiles = moneyChartLabels.map((label) => `${TypeSmiles.get(label.toLowerCase())} ${label}`);
     const moneyChartData = moneyChartLabels.reduce((acc, label) => {
 
       const tripsByLabel = this._trips.filter(({type: {value}}) => value.toUpperCase() === label);
@@ -144,12 +157,13 @@ class Statistics extends AbstractComponent {
       return acc;
     }, []);
 
-    this._moneyChart = this._createChart(`MONEY`, this._moneyChartCtx, moneyChartLabels, moneyChartData);
+    this._moneyChart = this._createChart(`MONEY`, this._moneyChartCtx, labelsWithSmiles, moneyChartData);
   }
 
   _createTransportChart() {
     const transportsData = this._trips.filter(({type: {placeholder}}) => placeholder === `to`);
     const transportChartLabels = [...new Set(transportsData.map(({type: {value}}) => value.toUpperCase()))];
+    const labelsWithSmiles = transportChartLabels.map((label) => `${TypeSmiles.get(label.toLowerCase())} ${label}`);
     const transportChartData = transportChartLabels.reduce((acc, label) => {
       const transportCount = transportsData.filter(({type: {value}}) => value.toUpperCase() === label).length;
 
@@ -157,11 +171,12 @@ class Statistics extends AbstractComponent {
       return acc;
     }, []);
 
-    this._transportChart = this._createChart(`TRANSPORT`, this._transportChartCtx, transportChartLabels, transportChartData);
+    this._transportChart = this._createChart(`TRANSPORT`, this._transportChartCtx, labelsWithSmiles, transportChartData);
   }
 
   _createTimeChart() {
     const timeChartLabels = [...new Set(this._trips.map(({type: {value}}) => value.toUpperCase()))];
+    const labelsWithSmiles = timeChartLabels.map((label) => `${TypeSmiles.get(label.toLowerCase())} ${label}`);
     const timeChartData = timeChartLabels.reduce((acc, label) => {
 
       const tripsByLabel = this._trips.filter(({type: {value}}) => value.toUpperCase() === label);
@@ -172,7 +187,7 @@ class Statistics extends AbstractComponent {
       return acc;
     }, []);
 
-    this._timeChart = this._createChart(`TIME SPENT`, this._timeChartCtx, timeChartLabels, timeChartData);
+    this._timeChart = this._createChart(`TIME SPENT`, this._timeChartCtx, labelsWithSmiles, timeChartData);
   }
 
   _clearCharts(...charts) {
