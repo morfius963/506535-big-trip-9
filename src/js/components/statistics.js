@@ -46,6 +46,13 @@ class Statistics extends AbstractComponent {
   }
 
   show(trips) {
+    if (trips.length === 0) {
+      this._setVisibility(`add`, this._moneyChartCtx, this._transportChartCtx, this._timeChartCtx);
+      return;
+    } else {
+      this._setVisibility(`remove`, this._moneyChartCtx, this._transportChartCtx, this._timeChartCtx);
+    }
+
     this._trips = trips;
     this.getElement().classList.remove(`visually-hidden`);
 
@@ -154,10 +161,10 @@ class Statistics extends AbstractComponent {
   }
 
   _createTimeChart() {
-    const timeChartLabels = [...new Set(this._trips.map(({city}) => city.toUpperCase()))];
+    const timeChartLabels = [...new Set(this._trips.map(({type: {value}}) => value.toUpperCase()))];
     const timeChartData = timeChartLabels.reduce((acc, label) => {
 
-      const tripsByLabel = this._trips.filter(({city}) => city.toUpperCase() === label);
+      const tripsByLabel = this._trips.filter(({type: {value}}) => value.toUpperCase() === label);
       const labelTime = tripsByLabel.reduce((accum, {eventTime: {activityTime}}) => accum + activityTime, 0);
       const hoursCount = Math.max(MIN_HOURS_COUNT, Math.floor(moment.duration(labelTime).asHours()));
 
@@ -174,6 +181,21 @@ class Statistics extends AbstractComponent {
         chart.destroy();
       }
     });
+  }
+
+  _setVisibility(operation, ...elems) {
+    switch (operation) {
+      case `add`:
+        elems.forEach((elem) => {
+          elem.classList.add(`visually-hidden`);
+        });
+        break;
+      case `remove`:
+        elems.forEach((elem) => {
+          elem.classList.remove(`visually-hidden`);
+        });
+        break;
+    }
   }
 }
 

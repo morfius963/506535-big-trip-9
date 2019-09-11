@@ -21,6 +21,7 @@ class EditEvent extends AbstractComponent {
     this._setCurrentTypeChecked();
     this._changeOptionsByType();
     this._changeDescByCity();
+    this._setNumbersOnly();
   }
 
   getTemplate() {
@@ -255,6 +256,14 @@ class EditEvent extends AbstractComponent {
           this.getElement().querySelector(`.event__destination-description`).textContent = ``;
           this.getElement().querySelector(`.event__section--destination`).classList.add(`visually-hidden`);
         }
+      });
+  }
+
+  _setNumbersOnly() {
+    this.getElement()
+      .querySelector(`.event__input--price`)
+      .addEventListener(`input`, (evt) => {
+        evt.target.value = evt.target.value.replace(/[^\d]/g, ``);
       });
   }
 }

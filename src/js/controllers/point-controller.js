@@ -31,6 +31,7 @@ class PointController {
     if (mode === Mode.ADDING) {
       renderPosition = `afterbegin`;
       currentView = this._editEvent;
+      this._editEvent.getElement().querySelector(`.event__reset-btn`).textContent = `Cancel`;
     }
 
     flatpickr(this._editEvent.getElement().querySelector(`#event-start-time-1`), {

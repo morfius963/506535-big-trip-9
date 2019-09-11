@@ -83,25 +83,6 @@ addNewPointBtn.addEventListener(`click`, () => {
 });
 
 const tripFilters = document.querySelector(`.trip-filters`);
-tripFilters.addEventListener(`change`, (evt) => {
-  const isFiltered = evt.target.value !== `everything`;
-  let tripsData = tripsMock;
-
-  switch (evt.target.value) {
-    case `everything`:
-      tripsData = tripsMock;
-      addNewPointBtn.disabled = false;
-      break;
-    case `future`:
-      tripsData = tripsMock.filter((trip) => trip.eventTime.from.isAfter(new Date(Date.now())));
-      addNewPointBtn.disabled = true;
-      break;
-    case `past`:
-      tripsData = tripsMock.filter((trip) => trip.eventTime.from.isBefore(new Date(Date.now())));
-      addNewPointBtn.disabled = true;
-      break;
-  }
-
-  tripController = new TripController(eventsContent, tripsData, onDataChange, isFiltered);
-  tripController.init();
+tripFilters.addEventListener(`change`, () => {
+  tripController.renderBoard();
 });
