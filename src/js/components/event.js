@@ -1,14 +1,16 @@
 import {makeFirstSymUp, getFormattedTimeDifference} from "../utils.js";
+import moment from "moment";
 import AbstractComponent from "./abstract-component.js";
 
 class Event extends AbstractComponent {
-  constructor({type: {value, placeholder}, city, eventTime: {from, to}, cost, currency, offers}) {
+  constructor({id, type: {value, placeholder}, destination: {name}, eventTime: {from, to}, cost, currency, offers}) {
     super();
+    this._id = id;
     this._typeValue = value === `` ? `taxi` : value;
     this._typePlaceholder = placeholder === `` ? `to` : placeholder;
-    this._city = city;
-    this._eventTimeFrom = from;
-    this._eventTimeTo = to;
+    this._city = name;
+    this._eventTimeFrom = moment(from);
+    this._eventTimeTo = moment(to);
     this._cost = Number(cost);
     this._currency = currency;
     this._offers = offers;
@@ -19,7 +21,7 @@ class Event extends AbstractComponent {
     return `<li class="trip-events__item">
       <div class="event">
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/${this._typeValue}.png" alt="Event type icon">
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${this._typeValue}.png" alt="Event type icon" id="${this._id}">
         </div>
         <h3 class="event__title">${makeFirstSymUp(this._typeValue)} ${this._typePlaceholder} ${this._city}</h3>
 
@@ -38,11 +40,11 @@ class Event extends AbstractComponent {
 
         <h4 class="visually-hidden">Offers:</h4>
           <ul class="event__selected-offers">
-            ${this._offers.slice(0, this._MAX_OFFERS_COUNT).filter(({isChecked}) => isChecked).map(({name, price}) => `<li class="event__offer">
-              <span class="event__offer-title">${name}</span>
+            ${this._offers.filter(({accepted}) => accepted).map(({title, price}) => `<li class="event__offer">
+              <span class="event__offer-title">${title}</span>
               &plus;
               ${this._currency}&nbsp;<span class="event__offer-price">${price}</span>
-            </li>`).join(``)}
+            </li>`).slice(0, this._MAX_OFFERS_COUNT).join(``)}
         </ul>
 
         <button class="event__rollup-btn" type="button">

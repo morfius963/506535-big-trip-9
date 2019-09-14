@@ -1,5 +1,4 @@
-import {renderElement, getFullEventPrice} from "../utils";
-import {getTripInfoData} from "../data.js";
+import {renderElement, getFullEventPrice, getTripInfoData} from "../utils";
 import TripInfo from "../components/trip-info.js";
 
 class PageDataController {
@@ -9,13 +8,14 @@ class PageDataController {
   }
 
   updatePage(points) {
-    const newTripInfoData = getTripInfoData(points);
+    const sortedPoints = points.slice().sort((a, b) => a.eventTime.from - b.eventTime.from);
+    const newTripInfoData = getTripInfoData(sortedPoints);
     const newTripinfo = new TripInfo(newTripInfoData);
     const tripInfoContainer = document.querySelector(`.trip-info__main`);
 
     this._tripInfoParent.removeChild(tripInfoContainer);
     renderElement(this._tripInfoParent, newTripinfo.getElement(), `afterbegin`);
-    this._fullTripPriceElem.textContent = getFullEventPrice(points);
+    this._fullTripPriceElem.textContent = getFullEventPrice(sortedPoints);
   }
 }
 

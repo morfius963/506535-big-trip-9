@@ -97,7 +97,7 @@ class Statistics extends AbstractComponent {
             display: true,
             anchor: `end`,
             align: `start`,
-            padding: 15,
+            padding: 5,
             formatter(value) {
               if (name === `TRANSPORT`) {
                 return `${value}x`;
@@ -180,7 +180,7 @@ class Statistics extends AbstractComponent {
     const timeChartData = timeChartLabels.reduce((acc, label) => {
 
       const tripsByLabel = this._trips.filter(({type: {value}}) => value.toUpperCase() === label);
-      const labelTime = tripsByLabel.reduce((accum, {eventTime: {activityTime}}) => accum + activityTime, 0);
+      const labelTime = tripsByLabel.reduce((accum, {eventTime: {from, to}}) => accum + (to - from), 0);
       const hoursCount = Math.max(MIN_HOURS_COUNT, Math.floor(moment.duration(labelTime).asHours()));
 
       acc.push(hoursCount);

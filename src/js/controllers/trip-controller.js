@@ -5,22 +5,22 @@ import TripDayInfo from "../components/trip-day-info.js";
 import EventsList from "../components/events-list.js";
 import NoPoints from "../components/no-points.js";
 import PointController, {Mode as PointControllerMode} from "./point-controller.js";
-import PageDataController from "./page-data-controller.js";
 import moment from "moment";
-import {renderElement, unrenderElement, getDateDiff} from "../utils.js";
+import {renderElement, unrenderElement} from "../utils.js";
 
 class TripController {
-  constructor(container, trips, onDataChange) {
+  constructor(container, trips, onDataChange, types, destinations) {
     this._container = container;
     this._trips = this._sortByDefault(trips);
     this._onDataChangeMain = onDataChange;
+    this._tripTypes = types;
+    this._destinations = destinations;
 
     this._filteredTrips = trips;
 
     this._sort = new Sort();
     this._tripContent = new TripContent();
     this._noPoints = new NoPoints();
-    this._pageDataController = new PageDataController();
 
     this._subscriptions = [];
     this._creatingPoint = null;
@@ -28,7 +28,12 @@ class TripController {
     this._onDataChange = this._onDataChange.bind(this);
     this.onChangeView = this.onChangeView.bind(this);
 
-    this._sortEventsByTime = (a, b) => b.eventTime.activityTime - a.eventTime.activityTime;
+    this._sortEventsByTime = (a, b) => {
+      const aTime = a.eventTime.to - a.eventTime.from;
+      const bTime = b.eventTime.to - b.eventTime.from;
+
+      return bTime - aTime;
+    };
     this._sortEventsByPrice = (a, b) => b.cost - a.cost;
   }
 
@@ -50,7 +55,11 @@ class TripController {
     this._container.classList.add(`visually-hidden`);
   }
 
-  show() {
+  show(trips) {
+    if (trips !== this._trips) {
+      this._setTrips(this._sortByDefault(trips));
+    }
+
     this._container.classList.remove(`visually-hidden`);
   }
 
@@ -98,13 +107,14 @@ class TripController {
         value: ``,
         placeholder: ``
       },
-      city: ``,
-      images: new Array(6).fill(``).map(() => `${`http://picsum.photos/300/150?r=${Math.random()}`}`),
-      description: ``,
+      destination: {
+        name: ``,
+        pictures: [],
+        description: ``
+      },
       eventTime: {
-        from: moment(Date.now()),
-        to: moment(Date.now()),
-        activityTime: 0
+        from: Date.now(),
+        to: Date.now()
       },
       cost: 0,
       currency: `&euro;`,
@@ -116,7 +126,7 @@ class TripController {
     this._creatingPoint = new PointController(newPointContainer, defaultPoint, PointControllerMode.ADDING, this.onChangeView, (...args) => {
       this._creatingPoint = null;
       this._onDataChange(...args);
-    });
+    }, this._tripTypes, this._destinations);
   }
 
   onChangeView() {
@@ -130,28 +140,13 @@ class TripController {
     }
   }
 
-  _onDataChange(newData, oldData) {
-    const tripsIndex = this._trips.findIndex((it) => it === oldData);
-
-    if (newData === null && oldData === null) {
-      this._creatingPoint = null;
-      this.renderBoard();
-      return;
-
-    } else if (newData === null) {
-      this._trips = [...this._trips.slice(0, tripsIndex), ...this._trips.slice(tripsIndex + 1)];
-
-    } else if (oldData === null) {
-      this._trips = [newData, ...this._trips];
-
-    } else {
-      this._trips[tripsIndex] = newData;
-    }
-
+  _onDataChange(actionType, update) {
     this._creatingPoint = null;
-    this._trips = this._sortByDefault(this._trips);
-    this._onDataChangeMain(this._trips);
-    this._pageDataController.updatePage(this._trips);
+    this._onDataChangeMain(actionType, update);
+  }
+
+  _setTrips(trips) {
+    this._trips = trips;
     this.renderBoard();
   }
 
@@ -170,7 +165,7 @@ class TripController {
   }
 
   _renderEvent(eventsContainer, eventData) {
-    const pointController = new PointController(eventsContainer, eventData, PointControllerMode.DEFAULT, this.onChangeView, this._onDataChange);
+    const pointController = new PointController(eventsContainer, eventData, PointControllerMode.DEFAULT, this.onChangeView, this._onDataChange, this._tripTypes, this._destinations);
     this._subscriptions.push(pointController.setDefaultView.bind(pointController));
   }
 
@@ -180,8 +175,8 @@ class TripController {
   }
 
   _renderEventsByDay(trips) {
-    const fromDates = trips.map(({eventTime: {from}}) => from).sort((a, b) => getDateDiff(a, b));
-    const formattedDates = fromDates.map((date) => moment(date, `DD/MM/YY HH:mm`).format(`MMM DD`));
+    const fromDates = trips.map(({eventTime: {from}}) => from).sort((a, b) => a - b);
+    const formattedDates = fromDates.map((date) => moment(date).format(`MMM DD`));
     const uniqueFormattedDates = [...new Set(formattedDates)];
 
     renderElement(this._container, this._tripContent.getElement(), `beforeend`);
@@ -190,7 +185,7 @@ class TripController {
       const tripItemContent = new TripItemContent();
       const tripDayInfo = new TripDayInfo();
       const eventsList = new EventsList();
-      const tripsForOneDay = trips.filter(({eventTime: {from}}) => moment(from, `DD/MM/YY HH:mm`).format(`MMM DD`) === eventDate);
+      const tripsForOneDay = trips.filter(({eventTime: {from}}) => moment(from).format(`MMM DD`) === eventDate);
       const stringToObjDate = new Date(`${eventDate} ${moment(Date.now()).format(`YYYY`)}`);
 
       renderElement(this._tripContent.getElement(), tripItemContent.getElement(), `beforeend`);
@@ -244,15 +239,15 @@ class TripController {
   }
 
   _sortByDefault(trips) {
-    return trips.slice().sort((a, b) => getDateDiff(a.eventTime.from, b.eventTime.from));
+    return trips.slice().sort((a, b) => a.eventTime.from - b.eventTime.from);
   }
 
   _getFilteredTrips() {
     let tripsData = this._trips;
     const currentFilterValue = Array.from(document.querySelectorAll(`.trip-filters__filter-input`)).find((input) => input.checked).value;
     const tripsEverything = this._trips;
-    const tripsFuture = tripsData.filter((trip) => trip.eventTime.from.isAfter(new Date(Date.now())));
-    const tripsPast = tripsData.filter((trip) => trip.eventTime.to.isBefore(new Date(Date.now())));
+    const tripsFuture = tripsData.filter((trip) => moment(trip.eventTime.from).isAfter(new Date(Date.now())));
+    const tripsPast = tripsData.filter((trip) => moment(trip.eventTime.to).isBefore(new Date(Date.now())));
 
     this._isFoundedTrips([`future`, `past`], tripsFuture, tripsPast);
 
