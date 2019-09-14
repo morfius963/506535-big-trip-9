@@ -79,14 +79,16 @@ class TripController {
 
     switch (currentSortValue) {
       case `time`:
-        this._sortEventsByValue(this._filteredTrips, this._sortEventsByTime);
+        this._renderBySortValue(this._filteredTrips, this._sortEventsByTime);
         break;
       case `price`:
-        this._sortEventsByValue(this._filteredTrips, this._sortEventsByPrice);
+        this._renderBySortValue(this._filteredTrips, this._sortEventsByPrice);
         break;
       case `default`:
-        this._renderEventsByDay(this._filteredTrips);
+        this._renderByDays(this._filteredTrips);
         break;
+      default:
+        this._renderByDays(this._filteredTrips);
     }
   }
 
@@ -174,9 +176,9 @@ class TripController {
     this._tripContent.removeElement();
   }
 
-  _renderEventsByDay(trips) {
-    const fromDates = trips.map(({eventTime: {from}}) => from).sort((a, b) => a - b);
-    const formattedDates = fromDates.map((date) => moment(date).format(`MMM DD`));
+  _renderByDays(trips) {
+    const sortedFromDates = trips.map(({eventTime: {from}}) => from).sort((a, b) => a - b);
+    const formattedDates = sortedFromDates.map((date) => moment(date).format(`MMM DD`));
     const uniqueFormattedDates = [...new Set(formattedDates)];
 
     renderElement(this._container, this._tripContent.getElement(), `beforeend`);
@@ -202,7 +204,7 @@ class TripController {
     });
   }
 
-  _sortEventsByValue(list, fn) {
+  _renderBySortValue(list, fn) {
     const tripItemContent = new TripItemContent();
     const tripDayInfo = new TripDayInfo();
     const eventsList = new EventsList();
@@ -227,14 +229,16 @@ class TripController {
 
     switch (evt.target.dataset.sortType) {
       case `time`:
-        this._sortEventsByValue(this._filteredTrips, this._sortEventsByTime);
+        this._renderBySortValue(this._filteredTrips, this._sortEventsByTime);
         break;
       case `price`:
-        this._sortEventsByValue(this._filteredTrips, this._sortEventsByPrice);
+        this._renderBySortValue(this._filteredTrips, this._sortEventsByPrice);
         break;
       case `default`:
-        this._renderEventsByDay(this._filteredTrips);
+        this._renderByDays(this._filteredTrips);
         break;
+      default:
+        this._renderByDays(this._filteredTrips);
     }
   }
 
@@ -261,6 +265,8 @@ class TripController {
       case `past`:
         tripsData = tripsPast;
         break;
+      default:
+        tripsData = tripsEverything;
     }
 
     return tripsData;

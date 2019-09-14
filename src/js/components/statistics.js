@@ -210,6 +210,8 @@ class Statistics extends AbstractComponent {
           elem.classList.remove(`visually-hidden`);
         });
         break;
+      default:
+        return;
     }
   }
 }

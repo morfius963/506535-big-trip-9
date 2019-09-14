@@ -61,6 +61,9 @@ const onDataChange = (actionType, update) => {
           tripController.show(points);
           pageDataController.updatePage(points);
         });
+      break;
+    default:
+      throw new Error(`Wrong action type`);
   }
 };
 
