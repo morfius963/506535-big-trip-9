@@ -30,8 +30,6 @@ export const getFormattedTimeDifference = (dateFrom, dateTo) => {
   return `${daysPart} ${hoursPart} ${minutesPart}`;
 };
 
-export const getDateDiff = (a, b) => moment(a, `DD/MM/YY HH:mm`).valueOf() - moment(b, `DD/MM/YY HH:mm`).valueOf();
-
 export const POSITION = {
   afterbegin: `afterbegin`,
   beforeend: `beforeend`,
@@ -63,3 +61,28 @@ export const unrenderElement = (element) => {
     element.remove();
   }
 };
+
+export const getTripInfoData = (trips) => trips.length > 0
+  ? ({
+    cities: trips.map(({destination: {name}}) => name),
+    date: {
+      start: trips[0].eventTime.from,
+      end: trips[trips.length - 1].eventTime.to
+    }
+  })
+  : ({
+    cities: [],
+    date: {}
+  });
+
+export const getMenuData = (value) => ({
+  name: value,
+  isActive: value === `table` ? true : false
+});
+
+export const getFilterData = (value) => ({
+  name: value,
+  isChecked: value === `everything` ? true : false
+});
+
+export const TRANSPORT_TYPES = new Set([`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`]);

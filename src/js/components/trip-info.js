@@ -1,11 +1,12 @@
 import AbstractComponent from "./abstract-component.js";
+import moment from "moment";
 
 class TripInfo extends AbstractComponent {
   constructor({cities, date: {start, end}}) {
     super();
     this._cities = cities;
-    this._dateStart = start;
-    this._dateEnd = end;
+    this._dateStart = moment(start);
+    this._dateEnd = moment(end);
     this._BIG_SEPARATOR = ` &mdash; ... &mdash; `;
     this._SMALL_SEPARATOR = ` &mdash; `;
   }

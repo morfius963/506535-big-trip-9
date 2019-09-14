@@ -1,30 +1,33 @@
-import {makeFirstSymUp} from "../utils.js";
+import {makeFirstSymUp, TRANSPORT_TYPES} from "../utils.js";
+import moment from "moment";
 import AbstractComponent from "./abstract-component.js";
 
 class EditEvent extends AbstractComponent {
-  constructor({type: {value, placeholder}, city, eventTime: {from, to}, cost, currency, isFavorite, offers, description, images}, tripTypes, cities) {
+  constructor({id, type: {value, placeholder}, destination: {name, description, pictures}, eventTime: {from, to}, cost, currency, isFavorite, offers}, tripTypes, cities) {
     super();
+    this._id = id;
     this._typeValue = value === `` ? `taxi` : value;
     this._typePlaceholder = placeholder === `` ? `to` : placeholder;
-    this._city = city;
-    this._eventTimeFrom = from;
-    this._eventTimeTo = to;
+    this._city = name;
+    this._description = description;
+    this._images = pictures;
+    this._eventTimeFrom = moment(from);
+    this._eventTimeTo = moment(to);
     this._cost = Number(cost);
     this._currency = currency;
     this._isFavorite = isFavorite;
     this._offers = offers;
-    this._description = description;
-    this._images = images;
     this._cities = cities;
     this._tripTypes = tripTypes;
 
     this._setCurrentTypeChecked();
     this._changeOptionsByType();
     this._changeDescByCity();
+    this._setNumbersOnly();
   }
 
   getTemplate() {
-    return `<li class="trip-events__item">
+    return `<li class="trip-events__item" id="${this._id}">
       <form class="event  event--edit" action="#" method="post">
         <header class="event__header">
           <div class="event__type-wrapper">
@@ -101,7 +104,7 @@ class EditEvent extends AbstractComponent {
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._city}" list="destination-list-1">
             <datalist id="destination-list-1">
-              ${this._cities.map(({city}) => `<option value="${city}"></option>`).join(``)}
+              ${this._cities.map(({name}) => `<option value="${name}"></option>`).join(``)}
             </datalist>
           </div>
 
@@ -147,10 +150,10 @@ class EditEvent extends AbstractComponent {
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
             <div class="event__available-offers">
-              ${this._offers.map(({name, id, price, isChecked}) => `<div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="${id}-1" type="checkbox" name="${id}" ${isChecked ? `checked` : ``}>
-                <label class="event__offer-label" for="${id}-1">
-                  <span class="event__offer-title">${name}</span>
+              ${this._offers.map(({title, price, accepted}) => `<div class="event__offer-selector">
+                <input class="event__offer-checkbox  visually-hidden" id="${this._getOfferId(title)}-1" type="checkbox" name="${this._getOfferId(title)}" ${accepted ? `checked` : ``}>
+                <label class="event__offer-label" for="${this._getOfferId(title)}-1">
+                  <span class="event__offer-title">${title}</span>
                   &plus;
                   &euro;&nbsp;<span class="event__offer-price">${price}</span>
                 </label>
@@ -164,7 +167,7 @@ class EditEvent extends AbstractComponent {
 
             <div class="event__photos-container">
               <div class="event__photos-tape">
-                ${this._images.map((img) => `<img class="event__photo" src="${img}" alt="Event photo">`).join(``)}
+                ${this._images.map(({src, description}) => `<img class="event__photo" src="${src}" alt="${description}">`).join(``)}
               </div>
             </div>
           </section>
@@ -181,13 +184,17 @@ class EditEvent extends AbstractComponent {
     this.getElement().querySelector(`.event__favorite-checkbox`).checked = this._isFavorite;
     this._setCurrentTypeChecked();
 
+    this.getElement().querySelector(`.event__photos-tape`).innerHTML = ``;
+    this.getElement().querySelector(`.event__section--destination`).classList.remove(`visually-hidden`);
+    this.getElement().querySelector(`.event__photos-tape`).insertAdjacentHTML(`beforeend`, this._images.map(({src, description}) => `<img class="event__photo" src="${src}" alt="${description}">`).join(``));
+
     if (this._offers.length > 0) {
       this.getElement().querySelector(`.event__section--offers`).classList.remove(`visually-hidden`);
       this.getElement().querySelector(`.event__available-offers`).innerHTML = ``;
-      this.getElement().querySelector(`.event__available-offers`).insertAdjacentHTML(`beforeend`, `${this._offers.map(({name, id, price, isChecked}) => `<div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="${id}-1" type="checkbox" name="${id}" ${isChecked ? `checked` : ``}>
-        <label class="event__offer-label" for="${id}-1">
-          <span class="event__offer-title">${name}</span>
+      this.getElement().querySelector(`.event__available-offers`).insertAdjacentHTML(`beforeend`, `${this._offers.map(({title, price, accepted}) => `<div class="event__offer-selector">
+        <input class="event__offer-checkbox  visually-hidden" id="${this._getOfferId(title)}-1" type="checkbox" name="${this._getOfferId(title)}" ${accepted ? `checked` : ``}>
+        <label class="event__offer-label" for="${this._getOfferId(title)}-1">
+          <span class="event__offer-title">${title}</span>
           &plus;
           &euro;&nbsp;<span class="event__offer-price">${price}</span>
         </label>
@@ -195,6 +202,10 @@ class EditEvent extends AbstractComponent {
     } else if (!this.getElement().querySelector(`.event__section--offers`).classList.contains(`visually-hidden`)) {
       this.getElement().querySelector(`.event__section--offers`).classList.add(`visually-hidden`);
     }
+  }
+
+  _getOfferId(title) {
+    return `${title.split(` `).join(`-`).toLowerCase()}`;
   }
 
   _isDestination() {
@@ -215,23 +226,25 @@ class EditEvent extends AbstractComponent {
       .forEach((typeItem) => {
         typeItem.addEventListener(`click`, (evt) => {
           const target = evt.currentTarget;
-          const typeData = this._tripTypes.find(({type}) => type.value === target.value);
+          const typeData = this._tripTypes.find(({type}) => type === target.value);
 
-          if (typeData.options.length === 0) {
+          this.getElement().querySelector(`.event__type-icon`).src = `img/icons/${typeData.type}.png`;
+          this.getElement().querySelector(`.event__type-output`).textContent = `${makeFirstSymUp(typeData.type)} ${TRANSPORT_TYPES.has(typeData.type) ? `to` : `in`}`;
+          this.getElement().querySelector(`.event__type-toggle`).checked = false;
+
+          this.getElement().querySelector(`.event__available-offers`).innerHTML = ``;
+
+          if (typeData.offers.length === 0) {
             this.getElement().querySelector(`.event__section--offers`).classList.add(`visually-hidden`);
+            return;
           } else {
             this.getElement().querySelector(`.event__section--offers`).classList.remove(`visually-hidden`);
           }
 
-          this.getElement().querySelector(`.event__type-icon`).src = `img/icons/${typeData.type.value}.png`;
-          this.getElement().querySelector(`.event__type-output`).textContent = `${makeFirstSymUp(typeData.type.value)} ${typeData.type.placeholder}`;
-          this.getElement().querySelector(`.event__type-toggle`).checked = false;
-
-          this.getElement().querySelector(`.event__available-offers`).innerHTML = ``;
           this.getElement().querySelector(`.event__available-offers`).insertAdjacentHTML(`beforeend`,
-              `${typeData.options.map(({name, id, price, isChecked}) => `<div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="${id}-1" type="checkbox" name="${id}" ${isChecked ? `checked` : ``}>
-                <label class="event__offer-label" for="${id}-1">
+              `${typeData.offers.map(({name, price}) => `<div class="event__offer-selector">
+                <input class="event__offer-checkbox  visually-hidden" id="${this._getOfferId(name)}-1" type="checkbox" name="${this._getOfferId(name)}">
+                <label class="event__offer-label" for="${this._getOfferId(name)}-1">
                   <span class="event__offer-title">${name}</span>
                   &plus;
                   &euro;&nbsp;<span class="event__offer-price">${price}</span>
@@ -246,15 +259,29 @@ class EditEvent extends AbstractComponent {
       .querySelector(`.event__input--destination`)
       .addEventListener(`change`, (evt) => {
         const target = evt.currentTarget;
-        const cityData = this._cities.find(({city}) => city === target.value);
+        const destinationImages = this.getElement().querySelector(`.event__photos-tape`);
+        const destinationDescription = this.getElement().querySelector(`.event__destination-description`);
+        const destinationContainer = this.getElement().querySelector(`.event__section--destination`);
+        const cityData = this._cities.find(({name}) => name === target.value);
+
+        destinationImages.innerHTML = ``;
 
         if (cityData) {
-          this.getElement().querySelector(`.event__destination-description`).textContent = cityData.description;
-          this.getElement().querySelector(`.event__section--destination`).classList.remove(`visually-hidden`);
+          destinationDescription.textContent = cityData.description;
+          destinationContainer.classList.remove(`visually-hidden`);
+          destinationImages.insertAdjacentHTML(`beforeend`, cityData.pictures.map(({src, description}) => `<img class="event__photo" src="${src}" alt="${description}">`).join(``));
         } else {
-          this.getElement().querySelector(`.event__destination-description`).textContent = ``;
-          this.getElement().querySelector(`.event__section--destination`).classList.add(`visually-hidden`);
+          destinationDescription.textContent = ``;
+          destinationContainer.classList.add(`visually-hidden`);
         }
+      });
+  }
+
+  _setNumbersOnly() {
+    this.getElement()
+      .querySelector(`.event__input--price`)
+      .addEventListener(`input`, (evt) => {
+        evt.target.value = evt.target.value.replace(/[^\d]/g, ``);
       });
   }
 }

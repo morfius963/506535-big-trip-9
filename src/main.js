@@ -3,22 +3,68 @@ import Filters from "./js/components/filters.js";
 import TripInfo from "./js/components/trip-info.js";
 import TripController from "./js/controllers/trip-controller.js";
 import Statistics from "./js/components/statistics.js";
-import {eventsData, menuData, filtersData, tripInfoData} from "./js/data.js";
-import {getFullEventPrice, renderElement} from "./js/utils.js";
+import PageDataController from "./js/controllers/page-data-controller.js";
+import API from "./js/api.js";
+import {getFullEventPrice, renderElement, getTripInfoData, getMenuData, getFilterData} from "./js/utils.js";
+
+const MENU_VALUES = [`table`, `stats`];
+const FILTER_VALUES = [`everything`, `future`, `past`];
+
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
+const END_POINT = `https://htmlacademy-es-9.appspot.com/big-trip`;
 
 const tripInfoContainer = document.querySelector(`.trip-main__trip-info`);
 const menuContainer = document.querySelector(`.trip-main__visually-hidden-menu`);
 const filterContainer = document.querySelector(`.trip-main__visually-hidden-filter`);
 const eventsContent = document.querySelector(`.trip-events`);
 const pageBodyContainer = document.querySelector(`.page-main .page-body__container`);
+const fullTripPriceElem = document.querySelector(`.trip-info__cost-value`);
+const addNewPointBtn = document.querySelector(`.trip-main__event-add-btn`);
 
-const tripInfo = new TripInfo(tripInfoData);
-const menu = new Menu(menuData);
-const filters = new Filters(filtersData);
-const statistics = new Statistics();
+const onDataChange = (actionType, update) => {
+  if (actionType === null || update === null) {
+    tripController.renderBoard();
+    return;
+  }
 
-const onDataChange = (trips) => {
-  tripsMock = trips;
+  switch (actionType) {
+    case `update`:
+      api.updatePoint({
+        id: update.id,
+        point: update.toRAW()
+      })
+        .then(() => api.getPoints())
+        .then((points) => {
+          tripsData = points;
+          tripController.show(points);
+          pageDataController.updatePage(points);
+        });
+      break;
+    case `delete`:
+      api.deletePoint({
+        id: update.id
+      })
+        .then(() => api.getPoints())
+        .then((points) => {
+          tripsData = points;
+          tripController.show(points);
+          pageDataController.updatePage(points);
+        });
+      break;
+    case `create`:
+      api.createPoint({
+        point: update.toRAW()
+      })
+        .then(() => api.getPoints())
+        .then((points) => {
+          tripsData = points;
+          tripController.show(points);
+          pageDataController.updatePage(points);
+        });
+      break;
+    default:
+      throw new Error(`Wrong action type`);
+  }
 };
 
 const setDisabledValue = (elements, value) => {
@@ -27,19 +73,48 @@ const setDisabledValue = (elements, value) => {
   });
 };
 
-let tripsMock = eventsData;
-let tripController = new TripController(eventsContent, tripsMock, onDataChange);
+let tripsData = null;
+let tripInfoData = null;
+let tripTypesWithOptions = null;
+let citiesWithDescription = null;
+const menuData = MENU_VALUES.map(getMenuData);
+const filtersData = FILTER_VALUES.map(getFilterData);
 
-statistics.hide();
+let tripInfo = null;
+let tripController = null;
+const menu = new Menu(menuData);
+const filters = new Filters(filtersData);
+const statistics = new Statistics();
+const pageDataController = new PageDataController();
+const api = new API(END_POINT, AUTHORIZATION);
 
-renderElement(tripInfoContainer, tripInfo.getElement(), `afterbegin`);
+api.getData({url: `offers`}).then((offers) => {
+  tripTypesWithOptions = offers;
+});
+
+api.getData({url: `destinations`}).then((destinations) => {
+  citiesWithDescription = destinations;
+});
+
+api.getPoints()
+  .then((points) => {
+    tripsData = points;
+    tripInfoData = getTripInfoData(points.slice().sort((a, b) => a - b));
+  })
+  .then(() => {
+    tripInfo = new TripInfo(tripInfoData);
+    tripController = new TripController(eventsContent, tripsData, onDataChange, tripTypesWithOptions, citiesWithDescription);
+  })
+  .then(() => {
+    renderElement(tripInfoContainer, tripInfo.getElement(), `afterbegin`);
+    renderElement(pageBodyContainer, statistics.getElement(), `beforeend`);
+    tripController.init(tripsData);
+    fullTripPriceElem.textContent = getFullEventPrice(tripsData);
+  });
+
 renderElement(menuContainer, menu.getElement(), `afterend`);
 renderElement(filterContainer, filters.getElement(), `afterend`);
-renderElement(pageBodyContainer, statistics.getElement(), `beforeend`);
-tripController.init(tripsMock);
-
-const fullTripPriceElem = document.querySelector(`.trip-info__cost-value`);
-fullTripPriceElem.textContent = getFullEventPrice(tripsMock);
+statistics.hide();
 
 menu.getElement().addEventListener(`click`, (evt) => {
   evt.preventDefault();
@@ -60,48 +135,28 @@ menu.getElement().addEventListener(`click`, (evt) => {
   switch (target.dataset.switch) {
     case `table`:
       statistics.hide();
-      tripController.show();
+      tripController.show(tripsData);
       setDisabledValue(filters.getElement().querySelectorAll(`.trip-filters__filter-input`), false);
       break;
     case `stats`:
       tripController.onChangeView();
       tripController.hide();
-      statistics.show(tripsMock);
+      statistics.show(tripsData);
       setDisabledValue(filters.getElement().querySelectorAll(`.trip-filters__filter-input`), true);
       break;
   }
 });
 
-const addNewPointBtn = document.querySelector(`.trip-main__event-add-btn`);
 addNewPointBtn.addEventListener(`click`, () => {
   menu.getElement().querySelector(`a[data-switch="table"]`).classList.add(`trip-tabs__btn--active`);
   menu.getElement().querySelector(`a[data-switch="stats"]`).classList.remove(`trip-tabs__btn--active`);
   statistics.hide();
-  tripController.show();
+  tripController.show(tripsData);
   tripController.createTask();
   setDisabledValue(filters.getElement().querySelectorAll(`.trip-filters__filter-input`), false);
 });
 
 const tripFilters = document.querySelector(`.trip-filters`);
-tripFilters.addEventListener(`change`, (evt) => {
-  const isFiltered = evt.target.value !== `everything`;
-  let tripsData = tripsMock;
-
-  switch (evt.target.value) {
-    case `everything`:
-      tripsData = tripsMock;
-      addNewPointBtn.disabled = false;
-      break;
-    case `future`:
-      tripsData = tripsMock.filter((trip) => trip.eventTime.from.isAfter(new Date(Date.now())));
-      addNewPointBtn.disabled = true;
-      break;
-    case `past`:
-      tripsData = tripsMock.filter((trip) => trip.eventTime.from.isBefore(new Date(Date.now())));
-      addNewPointBtn.disabled = true;
-      break;
-  }
-
-  tripController = new TripController(eventsContent, tripsData, onDataChange, isFiltered);
-  tripController.init();
+tripFilters.addEventListener(`change`, () => {
+  tripController.renderBoard();
 });
