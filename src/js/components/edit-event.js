@@ -182,6 +182,7 @@ class EditEvent extends AbstractComponent {
     this.getElement().querySelector(`.event__type-output`).textContent = `${makeFirstSymUp(this._typeValue)} ${this._typePlaceholder}`;
     this.getElement().querySelector(`.event__destination-description`).textContent = `${this._description}`;
     this.getElement().querySelector(`.event__favorite-checkbox`).checked = this._isFavorite;
+    this.getElement().querySelector(`.event--edit`).style.boxShadow = ``;
     this._setCurrentTypeChecked();
 
     this.getElement().querySelector(`.event__photos-tape`).innerHTML = ``;

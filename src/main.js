@@ -3,9 +3,10 @@ import Filters from "./js/components/filters.js";
 import TripInfo from "./js/components/trip-info.js";
 import TripController from "./js/controllers/trip-controller.js";
 import Statistics from "./js/components/statistics.js";
+import LoadingMessage from "./js/components/loading-message.js";
 import PageDataController from "./js/controllers/page-data-controller.js";
 import API from "./js/api.js";
-import {getFullEventPrice, renderElement, getTripInfoData, getMenuData, getFilterData} from "./js/utils.js";
+import {getFullEventPrice, renderElement, getTripInfoData, getMenuData, getFilterData, unrenderElement} from "./js/utils.js";
 
 const MENU_VALUES = [`table`, `stats`];
 const FILTER_VALUES = [`everything`, `future`, `past`];
@@ -21,7 +22,7 @@ const pageBodyContainer = document.querySelector(`.page-main .page-body__contain
 const fullTripPriceElem = document.querySelector(`.trip-info__cost-value`);
 const addNewPointBtn = document.querySelector(`.trip-main__event-add-btn`);
 
-const onDataChange = (actionType, update) => {
+const onDataChange = (actionType, update, onError) => {
   if (actionType === null || update === null) {
     tripController.renderBoard();
     return;
@@ -38,6 +39,9 @@ const onDataChange = (actionType, update) => {
           tripsData = points;
           tripController.show(points);
           pageDataController.updatePage(points);
+        })
+        .catch(() => {
+          onError();
         });
       break;
     case `delete`:
@@ -49,6 +53,9 @@ const onDataChange = (actionType, update) => {
           tripsData = points;
           tripController.show(points);
           pageDataController.updatePage(points);
+        })
+        .catch(() => {
+          onError();
         });
       break;
     case `create`:
@@ -60,6 +67,9 @@ const onDataChange = (actionType, update) => {
           tripsData = points;
           tripController.show(points);
           pageDataController.updatePage(points);
+        })
+        .catch(() => {
+          onError();
         });
       break;
     default:
@@ -80,40 +90,49 @@ let citiesWithDescription = null;
 const menuData = MENU_VALUES.map(getMenuData);
 const filtersData = FILTER_VALUES.map(getFilterData);
 
-let tripInfo = null;
 let tripController = null;
+const pageDataController = new PageDataController();
 const menu = new Menu(menuData);
 const filters = new Filters(filtersData);
+const tripInfo = new TripInfo();
 const statistics = new Statistics();
-const pageDataController = new PageDataController();
+const loadingMessage = new LoadingMessage();
 const api = new API(END_POINT, AUTHORIZATION);
 
-api.getData({url: `offers`}).then((offers) => {
-  tripTypesWithOptions = offers;
-});
+const promises = [
+  () => api.getData({url: `offers`}).then((offers) => {
+    tripTypesWithOptions = offers;
+  }),
 
-api.getData({url: `destinations`}).then((destinations) => {
-  citiesWithDescription = destinations;
-});
+  () => api.getData({url: `destinations`}).then((destinations) => {
+    citiesWithDescription = destinations;
+  }),
 
-api.getPoints()
-  .then((points) => {
-    tripsData = points;
-    tripInfoData = getTripInfoData(points.slice().sort((a, b) => a - b));
-  })
-  .then(() => {
-    tripInfo = new TripInfo(tripInfoData);
-    tripController = new TripController(eventsContent, tripsData, onDataChange, tripTypesWithOptions, citiesWithDescription);
-  })
-  .then(() => {
-    renderElement(tripInfoContainer, tripInfo.getElement(), `afterbegin`);
-    renderElement(pageBodyContainer, statistics.getElement(), `beforeend`);
-    tripController.init(tripsData);
-    fullTripPriceElem.textContent = getFullEventPrice(tripsData);
-  });
+  () => api.getPoints()
+    .then((points) => {
+      tripsData = points;
+      tripInfoData = getTripInfoData(points.slice().sort((a, b) => a - b));
+    })
+    .then(() => {
+      tripInfo.setTripInfoData(tripInfoData);
+      tripController = new TripController(eventsContent, tripsData, onDataChange, tripTypesWithOptions, citiesWithDescription);
+    })
+    .then(() => {
+      unrenderElement(loadingMessage.getElement());
+      loadingMessage.removeElement();
+      tripController.init();
+      fullTripPriceElem.textContent = getFullEventPrice(tripsData);
+      document.querySelector(`.trip-info__main`).replaceWith(tripInfo.getElement());
+    })
+];
 
+promises.reduce((acc, promise) => acc.then(promise), Promise.resolve());
+
+renderElement(tripInfoContainer, TripInfo.getMockElement(), `afterbegin`);
 renderElement(menuContainer, menu.getElement(), `afterend`);
 renderElement(filterContainer, filters.getElement(), `afterend`);
+renderElement(pageBodyContainer, statistics.getElement(), `beforeend`);
+renderElement(eventsContent, loadingMessage.getElement(), `beforeend`);
 statistics.hide();
 
 menu.getElement().addEventListener(`click`, (evt) => {
