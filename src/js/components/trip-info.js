@@ -14,8 +14,7 @@ class TripInfo extends AbstractComponent {
 
   static getMockElement() {
     return createElement(`<div class="trip-info__main">
-      <h1 class="trip-info__title"> &mdash; </h1>
-      <p class="trip-info__dates"> &mdash; </p>
+      <h1 class="trip-info__title">Loading...</h1>
     </div>`);
   }
 
