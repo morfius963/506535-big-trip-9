@@ -38,8 +38,6 @@ class TripController {
   }
 
   init() {
-    this._container.innerHTML = ``;
-
     if (this._trips.length === 0) {
       renderElement(this._container, this._noPoints.getElement(), `beforeend`);
 
@@ -142,9 +140,9 @@ class TripController {
     }
   }
 
-  _onDataChange(actionType, update) {
+  _onDataChange(actionType, update, onError) {
     this._creatingPoint = null;
-    this._onDataChangeMain(actionType, update);
+    this._onDataChangeMain(actionType, update, onError);
   }
 
   _setTrips(trips) {

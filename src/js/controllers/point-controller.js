@@ -11,6 +11,8 @@ export const Mode = {
   DEFAULT: `default`,
 };
 
+const ON_DATA_CHANGE_DELAY = 1000;
+
 class PointController {
   constructor(container, data, mode, onChangeView, onDataChange, types, destinations) {
     this._container = container;
@@ -98,7 +100,15 @@ class PointController {
         evt.preventDefault();
 
         const entry = this._buildNewData();
-        this._onDataChange(mode === Mode.DEFAULT ? `update` : `create`, entry);
+
+        this.blockForm(`save`, true);
+        setTimeout(this._onDataChange.bind(this,
+            mode === Mode.DEFAULT ? `update` : `create`,
+            entry,
+            () => {
+              this.onErrorDataChange();
+            }),
+        ON_DATA_CHANGE_DELAY);
 
         document.removeEventListener(`keydown`, onEscKeyDown);
       });
@@ -108,16 +118,73 @@ class PointController {
       .addEventListener(`click`, (evt) => {
         evt.preventDefault();
 
+        this.blockForm(`delete`, true);
+
         if (mode === Mode.ADDING) {
           unrenderElement(this._editEvent.getElement());
           this._editEvent.removeElement();
           this._onDataChange(null, null);
         } else if (mode === Mode.DEFAULT) {
-          this._onDataChange(`delete`, this._data);
+          setTimeout(this._onDataChange.bind(this, `delete`, this._data), ON_DATA_CHANGE_DELAY);
         }
       });
 
     renderElement(this._container, currentView.getElement(), renderPosition);
+  }
+
+  blockForm(btnValue, isDisabled) {
+    const buttonSave = this._editEvent.getElement().querySelector(`.event__save-btn`);
+    const buttonDelete = this._editEvent.getElement().querySelector(`.event__reset-btn`);
+
+    const setDisabledValue = (elem, selector) => {
+      elem.querySelectorAll(selector).forEach((input) => {
+        input.disabled = isDisabled;
+      });
+    };
+
+    this._editEvent.getElement().querySelector(`.event--edit`).style.boxShadow = ``;
+
+    this._editEvent.getElement().querySelector(`.event__type-toggle`).disabled = isDisabled;
+    this._editEvent.getElement().querySelector(`.event__favorite-checkbox`).disabled = isDisabled;
+    this._editEvent.getElement().querySelector(`.event__rollup-btn`).disabled = isDisabled;
+    setDisabledValue(this._editEvent.getElement(), `.event__input`);
+    setDisabledValue(this._editEvent.getElement(), `.event__offer-checkbox`);
+    buttonSave.disabled = isDisabled;
+    buttonDelete.disabled = isDisabled;
+
+    if (isDisabled) {
+      if (btnValue === `save`) {
+        buttonSave.textContent = `Saving...`;
+      } else {
+        buttonDelete.textContent = `Deleting...`;
+      }
+    } else {
+      buttonSave.textContent = `Save`;
+      buttonDelete.textContent = `Delete`;
+    }
+  }
+
+  shakeTask() {
+    const ANIMATION_TIMEOUT = 600;
+    const editEventElement = this._editEvent.getElement();
+    editEventElement.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      editEventElement.style.animation = ``;
+    }, ANIMATION_TIMEOUT);
+  }
+
+  onErrorDataChange() {
+    this.shakeTask();
+    this.blockForm(null, false);
+    this._editEvent.getElement().querySelector(`.event--edit`).style.boxShadow = `0 0 10px 0 red`;
+  }
+
+  setDefaultView() {
+    if (this._container.contains(this._editEvent.getElement())) {
+      this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
+      this._editEvent.resetForm();
+    }
   }
 
   _buildNewData() {
@@ -175,13 +242,6 @@ class PointController {
     };
 
     return entry;
-  }
-
-  setDefaultView() {
-    if (this._container.contains(this._editEvent.getElement())) {
-      this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
-      this._editEvent.resetForm();
-    }
   }
 }
 
