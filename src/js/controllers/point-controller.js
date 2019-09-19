@@ -22,6 +22,8 @@ class PointController {
     this._event = new Event(data);
     this._editEvent = new EditEvent(data, types, destinations);
 
+    this._onEscKeyDown = this._onEscKeyDownEvent.bind(this);
+
     this.init(mode);
   }
 
@@ -59,24 +61,13 @@ class PointController {
       }
     });
 
-    const onEscKeyDown = (evt) => {
-      if (evt.key === `Escape` || evt.key === `Esc`) {
-        if (this._editEvent.getElement().parentNode === this._container) {
-          this._editEvent.resetForm();
-          this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
-        }
-
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      }
-    };
-
     this._event.getElement()
       .querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, () => {
         this._onChangeView();
 
         this._container.replaceChild(this._editEvent.getElement(), this._event.getElement());
-        document.addEventListener(`keydown`, onEscKeyDown);
+        document.addEventListener(`keydown`, this._onEscKeyDown);
       });
 
     this._editEvent.getElement()
@@ -90,7 +81,7 @@ class PointController {
       } else if (mode === Mode.DEFAULT) {
         this._editEvent.resetForm();
         this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
-        document.removeEventListener(`keydown`, onEscKeyDown);
+        document.removeEventListener(`keydown`, this._onEscKeyDown);
       }
     });
 
@@ -110,7 +101,7 @@ class PointController {
             }),
         ON_DATA_CHANGE_DELAY);
 
-        document.removeEventListener(`keydown`, onEscKeyDown);
+        document.removeEventListener(`keydown`, this._onEscKeyDown);
       });
 
     this._editEvent.getElement()
@@ -127,6 +118,8 @@ class PointController {
         } else if (mode === Mode.DEFAULT) {
           setTimeout(this._onDataChange.bind(this, `delete`, this._data), ON_DATA_CHANGE_DELAY);
         }
+
+        document.removeEventListener(`keydown`, this._onEscKeyDown);
       });
 
     renderElement(this._container, currentView.getElement(), renderPosition);
@@ -178,12 +171,24 @@ class PointController {
     this.shakeTask();
     this.blockForm(null, false);
     this._editEvent.getElement().querySelector(`.event--edit`).style.boxShadow = `0 0 10px 0 red`;
+    document.addEventListener(`keydown`, this._onEscKeyDown);
   }
 
   setDefaultView() {
     if (this._container.contains(this._editEvent.getElement())) {
       this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
       this._editEvent.resetForm();
+    }
+  }
+
+  _onEscKeyDownEvent(evt) {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      if (this._editEvent.getElement().parentNode === this._container) {
+        this._editEvent.resetForm();
+        this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
+      }
+
+      document.removeEventListener(`keydown`, this._onEscKeyDown);
     }
   }
 
