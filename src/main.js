@@ -99,34 +99,30 @@ const statistics = new Statistics();
 const loadingMessage = new LoadingMessage();
 const api = new API(END_POINT, AUTHORIZATION);
 
-const promises = [
-  () => api.getData({url: `offers`}).then((offers) => {
+api.getData({url: `offers`})
+  .then((offers) => {
     tripTypesWithOptions = offers;
-  }),
-
-  () => api.getData({url: `destinations`}).then((destinations) => {
+  })
+  .then(() => api.getData({url: `destinations`}))
+  .then((destinations) => {
     citiesWithDescription = destinations;
-  }),
-
-  () => api.getPoints()
-    .then((points) => {
-      tripsData = points;
-      tripInfoData = getTripInfoData(points.slice().sort((a, b) => a - b));
-    })
-    .then(() => {
-      tripInfo.setTripInfoData(tripInfoData);
-      tripController = new TripController(eventsContent, tripsData, onDataChange, tripTypesWithOptions, citiesWithDescription);
-    })
-    .then(() => {
-      unrenderElement(loadingMessage.getElement());
-      loadingMessage.removeElement();
-      tripController.init();
-      fullTripPriceElem.textContent = getFullEventPrice(tripsData);
-      document.querySelector(`.trip-info__main`).replaceWith(tripInfo.getElement());
-    })
-];
-
-promises.reduce((acc, promise) => acc.then(promise), Promise.resolve());
+  })
+  .then(() => api.getPoints())
+  .then((points) => {
+    tripsData = points;
+    tripInfoData = getTripInfoData(points.slice().sort((a, b) => a - b));
+  })
+  .then(() => {
+    tripInfo.setTripInfoData(tripInfoData);
+    tripController = new TripController(eventsContent, tripsData, onDataChange, tripTypesWithOptions, citiesWithDescription);
+  })
+  .then(() => {
+    unrenderElement(loadingMessage.getElement());
+    loadingMessage.removeElement();
+    tripController.init();
+    fullTripPriceElem.textContent = getFullEventPrice(tripsData);
+    document.querySelector(`.trip-info__main`).replaceWith(tripInfo.getElement());
+  });
 
 renderElement(tripInfoContainer, TripInfo.getMockElement(), `afterbegin`);
 renderElement(menuContainer, menu.getElement(), `afterend`);
