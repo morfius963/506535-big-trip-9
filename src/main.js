@@ -6,10 +6,13 @@ import Statistics from "./js/components/statistics.js";
 import LoadingMessage from "./js/components/loading-message.js";
 import PageDataController from "./js/controllers/page-data-controller.js";
 import API from "./js/api.js";
+import Provider from "./js/provider.js";
+import Store from "./js/store.js";
 import {getFullEventPrice, renderElement, getTripInfoData, getMenuData, getFilterData, unrenderElement} from "./js/utils.js";
 
 const MENU_VALUES = [`table`, `stats`];
 const FILTER_VALUES = [`everything`, `future`, `past`];
+const POINTS_STORE_KEY = `tasks-store-key`;
 
 const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
 const END_POINT = `https://htmlacademy-es-9.appspot.com/big-trip`;
@@ -30,11 +33,11 @@ const onDataChange = (actionType, update, onError) => {
 
   switch (actionType) {
     case `update`:
-      api.updatePoint({
+      provider.updatePoint({
         id: update.id,
         point: update.toRAW()
       })
-        .then(() => api.getPoints())
+        .then(() => provider.getPoints())
         .then((points) => {
           tripsData = points;
           tripController.show(points);
@@ -45,10 +48,10 @@ const onDataChange = (actionType, update, onError) => {
         });
       break;
     case `delete`:
-      api.deletePoint({
+      provider.deletePoint({
         id: update.id
       })
-        .then(() => api.getPoints())
+        .then(() => provider.getPoints())
         .then((points) => {
           tripsData = points;
           tripController.show(points);
@@ -59,10 +62,10 @@ const onDataChange = (actionType, update, onError) => {
         });
       break;
     case `create`:
-      api.createPoint({
+      provider.createPoint({
         point: update.toRAW()
       })
-        .then(() => api.getPoints())
+        .then(() => provider.getPoints())
         .then((points) => {
           tripsData = points;
           tripController.show(points);
@@ -98,16 +101,18 @@ const tripInfo = new TripInfo();
 const statistics = new Statistics();
 const loadingMessage = new LoadingMessage();
 const api = new API(END_POINT, AUTHORIZATION);
+const store = new Store({storage: window.localStorage, key: POINTS_STORE_KEY});
+const provider = new Provider({api, store, generateId: () => String(Date.now())});
 
-api.getData({url: `offers`})
+provider.getData({url: `offers`})
   .then((offers) => {
     tripTypesWithOptions = offers;
   })
-  .then(() => api.getData({url: `destinations`}))
+  .then(() => provider.getData({url: `destinations`}))
   .then((destinations) => {
     citiesWithDescription = destinations;
   })
-  .then(() => api.getPoints())
+  .then(() => provider.getPoints())
   .then((points) => {
     tripsData = points;
     tripInfoData = getTripInfoData(points.slice().sort((a, b) => a - b));
@@ -174,4 +179,17 @@ addNewPointBtn.addEventListener(`click`, () => {
 const tripFilters = document.querySelector(`.trip-filters`);
 tripFilters.addEventListener(`change`, () => {
   tripController.renderBoard();
+});
+
+window.addEventListener(`offline`, () => {
+  document.title = `${document.title} [OFFLINE]`;
+});
+
+window.addEventListener(`online`, () => {
+  document.title = document.title.split(`[OFFLINE]`)[0];
+  provider.syncPoints()
+    .then((updatedPoints) => {
+      tripsData = updatedPoints;
+    })
+    .then(() => tripController.show(tripsData));
 });

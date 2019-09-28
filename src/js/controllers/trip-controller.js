@@ -69,10 +69,11 @@ class TripController {
     }
 
     const currentSortValue = Array.from(this._sort.getElement().querySelectorAll(`.trip-sort__input`)).find((sortItem) => sortItem.checked).dataset.sortType;
-    this._filteredTrips = this._getFilteredTrips(this._trips);
 
+    this._filteredTrips = this._getFilteredTrips(this._trips);
     this._clearAllTrips();
     this._subscriptions.length = 0;
+
     renderElement(this._container, this._sort.getElement(), `beforeend`);
 
     switch (currentSortValue) {
@@ -247,6 +248,7 @@ class TripController {
   _getFilteredTrips() {
     let tripsData = this._trips;
     const currentFilterValue = Array.from(document.querySelectorAll(`.trip-filters__filter-input`)).find((input) => input.checked).value;
+
     const tripsEverything = this._trips;
     const tripsFuture = tripsData.filter((trip) => moment(trip.eventTime.from).isAfter(new Date(Date.now())));
     const tripsPast = tripsData.filter((trip) => moment(trip.eventTime.to).isBefore(new Date(Date.now())));
@@ -274,11 +276,7 @@ class TripController {
     trips.forEach((trip, i) => {
       const filterElem = document.querySelector(`#filter-${filterNames[i]}`);
 
-      if (trip.length === 0) {
-        filterElem.disabled = true;
-      } else {
-        filterElem.disabled = false;
-      }
+      filterElem.disabled = trip.length === 0;
     });
   }
 }
