@@ -193,8 +193,3 @@ window.addEventListener(`online`, () => {
     })
     .then(() => tripController.show(tripsData));
 });
-
-navigator.serviceWorker.register(`./js/sw.js`)
-  .catch((error) => {
-    throw new Error(`Registration failed with ` + error);
-  });
