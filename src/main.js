@@ -195,6 +195,6 @@ window.addEventListener(`online`, () => {
 });
 
 navigator.serviceWorker.register(`./js/sw.js`)
-    .catch((error) => {
-      throw new Error(`Registration failed with ` + error);
-    });
+  .catch((error) => {
+    throw new Error(`Registration failed with ` + error);
+  });
