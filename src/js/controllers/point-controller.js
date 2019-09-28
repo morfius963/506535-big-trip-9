@@ -145,12 +145,10 @@ class PointController {
     buttonSave.disabled = isDisabled;
     buttonDelete.disabled = isDisabled;
 
-    if (isDisabled) {
-      if (btnValue === `save`) {
-        buttonSave.textContent = `Saving...`;
-      } else {
-        buttonDelete.textContent = `Deleting...`;
-      }
+    if (btnValue === `save`) {
+      buttonSave.textContent = isDisabled ? `Saving...` : `Save`;
+    } else if (btnValue === `delete`) {
+      buttonDelete.textContent = isDisabled ? `Deleting...` : `Delete`;
     } else {
       buttonSave.textContent = `Save`;
       buttonDelete.textContent = `Delete`;

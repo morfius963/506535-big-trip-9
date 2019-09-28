@@ -16,13 +16,17 @@ class API {
   static checkStatus(response) {
     if (response.status >= 200 && response.status < 300) {
       return response;
-    } else {
-      throw new Error(`${response.status}: ${response.statusText}`);
     }
+
+    throw new Error(`${response.status}: ${response.statusText}`);
   }
 
   static toJSON(response) {
     return response.json();
+  }
+
+  static setSyncData(update) {
+    return [...update.created, ...update.updated.map((updateItem) => updateItem.payload.point)];
   }
 
   getData({url}) {
@@ -60,6 +64,20 @@ class API {
 
   deletePoint({id}) {
     return this._load({url: `points/${id}`, method: Method.DELETE});
+  }
+
+  syncPoints({points}) {
+    return this._load({
+      url: `points/sync`,
+      method: `POST`,
+      body: JSON.stringify(points),
+      headers: new Headers({'Content-Type': `application/json`})
+    })
+      .then(API.toJSON)
+      .then((newPointsData) => {
+        return API.setSyncData(newPointsData);
+      })
+      .then((ModelPoint.parsePoints));
   }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {

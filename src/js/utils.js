@@ -77,12 +77,16 @@ export const getTripInfoData = (trips) => trips.length > 0
 
 export const getMenuData = (value) => ({
   name: value,
-  isActive: value === `table` ? true : false
+  isActive: value === `table`
 });
 
 export const getFilterData = (value) => ({
   name: value,
-  isChecked: value === `everything` ? true : false
+  isChecked: value === `everything`
 });
 
 export const TRANSPORT_TYPES = new Set([`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`]);
+
+export const objectToArray = (object) => {
+  return Object.keys(object).map((id) => object[id]);
+};
