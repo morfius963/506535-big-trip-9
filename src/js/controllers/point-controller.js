@@ -179,17 +179,6 @@ class PointController {
     }
   }
 
-  _onEscKeyDownEvent(evt) {
-    if (evt.key === `Escape` || evt.key === `Esc`) {
-      if (this._editEvent.getElement().parentNode === this._container) {
-        this._editEvent.resetForm();
-        this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
-      }
-
-      document.removeEventListener(`keydown`, this._onEscKeyDown);
-    }
-  }
-
   _buildNewData() {
     const pointId = this._editEvent.getElement().id;
     const formData = new FormData(this._editEvent.getElement().querySelector(`.event--edit`));
@@ -245,6 +234,17 @@ class PointController {
     };
 
     return entry;
+  }
+
+  _onEscKeyDownEvent(evt) {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      if (this._editEvent.getElement().parentNode === this._container) {
+        this._editEvent.resetForm();
+        this._container.replaceChild(this._event.getElement(), this._editEvent.getElement());
+      }
+
+      document.removeEventListener(`keydown`, this._onEscKeyDown);
+    }
   }
 }
 

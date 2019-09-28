@@ -13,22 +13,6 @@ class API {
     this._authorization = authorization;
   }
 
-  static checkStatus(response) {
-    if (response.status >= 200 && response.status < 300) {
-      return response;
-    }
-
-    throw new Error(`${response.status}: ${response.statusText}`);
-  }
-
-  static toJSON(response) {
-    return response.json();
-  }
-
-  static setSyncData(update) {
-    return [...update.created, ...update.updated.map((updateItem) => updateItem.payload.point)];
-  }
-
   getData({url}) {
     return this._load({url})
       .then(API.toJSON);
@@ -84,6 +68,22 @@ class API {
     headers.append(`Authorization`, this._authorization);
     return fetch(`${this._endPoint}/${url}`, {method, body, headers})
       .then(API.checkStatus);
+  }
+
+  static checkStatus(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response;
+    }
+
+    throw new Error(`${response.status}: ${response.statusText}`);
+  }
+
+  static toJSON(response) {
+    return response.json();
+  }
+
+  static setSyncData(update) {
+    return [...update.created, ...update.updated.map((updateItem) => updateItem.payload.point)];
   }
 }
 
