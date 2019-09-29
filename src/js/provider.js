@@ -9,7 +9,15 @@ class Provider {
   }
 
   getData({url}) {
-    return this._api.getData({url});
+    if (this._isOnline()) {
+      return this._api.getData({url});
+    }
+
+    const rawPointsMap = this._store.getAll();
+    const rawPoints = objectToArray(rawPointsMap);
+    const points = ModelPoint.parsePoints(rawPoints);
+
+    return Promise.resolve(points);
   }
 
   getPoints() {
@@ -58,6 +66,7 @@ class Provider {
   }
 
   deletePoint({id}) {
+    console.log(window.navigator.onLine);
     if (this._isOnline()) {
       return this._api.deletePoint({id})
       .then(() => {
