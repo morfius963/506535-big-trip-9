@@ -12,12 +12,6 @@ class TripInfo extends AbstractComponent {
     this._SMALL_SEPARATOR = ` &mdash; `;
   }
 
-  static getMockElement() {
-    return createElement(`<div class="trip-info__main">
-      <h1 class="trip-info__title">Loading...</h1>
-    </div>`);
-  }
-
   setTripInfoData({cities, date: {start, end}}) {
     this.removeElement();
     this._cities = cities;
@@ -54,6 +48,12 @@ class TripInfo extends AbstractComponent {
     }
 
     return this._SMALL_SEPARATOR;
+  }
+
+  static getMockElement() {
+    return createElement(`<div class="trip-info__main">
+      <h1 class="trip-info__title">Loading...</h1>
+    </div>`);
   }
 }
 

@@ -223,24 +223,6 @@ class TripController {
     });
   }
 
-  _onSortListClick(evt) {
-    this._clearAllTrips();
-
-    switch (evt.target.dataset.sortType) {
-      case `time`:
-        this._renderBySortValue(this._filteredTrips, this._sortEventsByTime);
-        break;
-      case `price`:
-        this._renderBySortValue(this._filteredTrips, this._sortEventsByPrice);
-        break;
-      case `default`:
-        this._renderByDays(this._filteredTrips);
-        break;
-      default:
-        this._renderByDays(this._filteredTrips);
-    }
-  }
-
   _sortByDefault(trips) {
     return trips.slice().sort((a, b) => a.eventTime.from - b.eventTime.from);
   }
@@ -278,6 +260,24 @@ class TripController {
 
       filterElem.disabled = trip.length === 0;
     });
+  }
+
+  _onSortListClick(evt) {
+    this._clearAllTrips();
+
+    switch (evt.target.dataset.sortType) {
+      case `time`:
+        this._renderBySortValue(this._filteredTrips, this._sortEventsByTime);
+        break;
+      case `price`:
+        this._renderBySortValue(this._filteredTrips, this._sortEventsByPrice);
+        break;
+      case `default`:
+        this._renderByDays(this._filteredTrips);
+        break;
+      default:
+        this._renderByDays(this._filteredTrips);
+    }
   }
 }
 

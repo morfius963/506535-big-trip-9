@@ -104,11 +104,15 @@ const api = new API(END_POINT, AUTHORIZATION);
 const store = new Store({storage: window.localStorage, key: POINTS_STORE_KEY});
 const provider = new Provider({api, store, generateId: () => String(Date.now())});
 
-provider.getData({url: `offers`})
+if (!Provider.isOnline()) {
+  document.title = `${document.title} [OFFLINE]`;
+}
+
+provider.getData({url: `offers`, key: `offers`})
   .then((offers) => {
     tripTypesWithOptions = offers;
   })
-  .then(() => provider.getData({url: `destinations`}))
+  .then(() => provider.getData({url: `destinations`, key: `destinations`}))
   .then((destinations) => {
     citiesWithDescription = destinations;
   })
