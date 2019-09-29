@@ -37,6 +37,14 @@ class Store {
       return emptyItems;
     }
   }
+
+  setDataItem({key, item}) {
+    this._storage.setItem(key, JSON.stringify(item));
+  }
+
+  getDataItem({key}) {
+    return JSON.parse(this._storage.getItem(key));
+  }
 }
 
 export default Store;

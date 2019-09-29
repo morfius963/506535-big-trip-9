@@ -8,20 +8,21 @@ class Provider {
     this._generateId = generateId;
   }
 
-  getData({url}) {
-    if (this._isOnline()) {
-      return this._api.getData({url});
+  getData({url, key}) {
+    if (Provider.isOnline()) {
+      return this._api.getData({url})
+        .then((dataValue) => {
+          this._store.setDataItem({key, item: dataValue});
+          return dataValue;
+        });
     }
 
-    const rawPointsMap = this._store.getAll();
-    const rawPoints = objectToArray(rawPointsMap);
-    const points = ModelPoint.parsePoints(rawPoints);
-
-    return Promise.resolve(points);
+    const dataFromCache = this._store.getDataItem({key});
+    return Promise.resolve(dataFromCache);
   }
 
   getPoints() {
-    if (this._isOnline()) {
+    if (Provider.isOnline()) {
       return this._api.getPoints()
       .then((points) => {
         points.map((it) => this._store.setItem({key: it.id, item: it.toRAW()}));
@@ -37,7 +38,7 @@ class Provider {
   }
 
   createPoint({point}) {
-    if (this._isOnline()) {
+    if (Provider.isOnline()) {
       return this._api.createPoint({point})
       .then((pointItem) => {
         this._store.setItem({key: pointItem.id, item: pointItem.toRAW()});
@@ -52,7 +53,7 @@ class Provider {
   }
 
   updatePoint({id, point}) {
-    if (this._isOnline()) {
+    if (Provider.isOnline()) {
       return this._api.updatePoint({id, point})
       .then((pointItem) => {
         this._store.setItem({key: pointItem.id, item: pointItem.toRAW()});
@@ -66,8 +67,7 @@ class Provider {
   }
 
   deletePoint({id}) {
-    console.log(window.navigator.onLine);
-    if (this._isOnline()) {
+    if (Provider.isOnline()) {
       return this._api.deletePoint({id})
       .then(() => {
         this._store.removeItem({key: id});
@@ -82,7 +82,7 @@ class Provider {
     return this._api.syncPoints({points: objectToArray(this._store.getAll())});
   }
 
-  _isOnline() {
+  static isOnline() {
     return window.navigator.onLine;
   }
 }
