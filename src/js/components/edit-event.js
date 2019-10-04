@@ -24,6 +24,7 @@ class EditEvent extends AbstractComponent {
     this._changeOptionsByType();
     this._changeDescByCity();
     this._setNumbersOnly();
+    this._disableInputChange();
   }
 
   getTemplate() {
@@ -283,6 +284,16 @@ class EditEvent extends AbstractComponent {
       .querySelector(`.event__input--price`)
       .addEventListener(`input`, (evt) => {
         evt.target.value = evt.target.value.replace(/[^\d]/g, ``);
+      });
+  }
+
+  _disableInputChange() {
+    this.getElement()
+      .querySelector(`.event__input--destination`)
+      .addEventListener(`keydown`, (evt) => {
+        if (evt.which !== 8 && evt.which !== 46) {
+          evt.preventDefault();
+        }
       });
   }
 }
